@@ -29,6 +29,6 @@ try:
         except Exception:
             continue  # Ignorer les erreurs de parsing
 except KeyboardInterrupt:
-    print("\nArrêt de l'écoute.")
+    print("\nArrêt de l'écoute...")
 finally:
     sock.close()
