@@ -143,61 +143,199 @@ class PacketCarTelemetryData:
         self.mfdPanelIndexSecondaryPlayer = data[offset+1]
         self.suggestedGear = struct.unpack('<b', data[offset+2:offset+3])[0]
 
+
+class LapData:
+    _STRUCT_FMT = (
+        '<'        # little-endian
+        'II'       # lastLapTimeInMS, currentLapTimeInMS
+        'H' 'B'    # sector1TimeMSPart, sector1TimeMinutesPart
+        'H' 'B'    # sector2TimeMSPart, sector2TimeMinutesPart
+        'H' 'B'    # deltaToCarInFrontMSPart, deltaToCarInFrontMinutesPart
+        'H' 'B'    # deltaToRaceLeaderMSPart, deltaToRaceLeaderMinutesPart
+        'f' 'f' 'f'  # lapDistance, totalDistance, safetyCarDelta
+        # 15 x uint8
+        'BBBBBBBBBBBBBBB'
+        'H' 'H'    # pitLaneTimeInLaneInMS, pitStopTimerInMS
+        'B'        # pitStopShouldServePen
+        'f'        # speedTrapFastestSpeed
+        'B'        # speedTrapFastestLap
+    )
+
+    _STRUCT_SIZE = struct.calcsize(_STRUCT_FMT)
+
+    def __init__(self, data: bytes):
+        if len(data) < self._STRUCT_SIZE:
+            raise struct.error(
+                f"LapData: bloc trop court ({len(data)} < {self._STRUCT_SIZE})")
+
+        unpacked = struct.unpack(self._STRUCT_FMT, data)
+        (
+            self.lastLapTimeInMS,
+            self.currentLapTimeInMS,
+            self.sector1TimeMSPart,
+            self.sector1TimeMinutesPart,
+            self.sector2TimeMSPart,
+            self.sector2TimeMinutesPart,
+            self.deltaToCarInFrontMSPart,
+            self.deltaToCarInFrontMinutesPart,
+            self.deltaToRaceLeaderMSPart,
+            self.deltaToRaceLeaderMinutesPart,
+            self.lapDistance,
+            self.totalDistance,
+            self.safetyCarDelta,
+            self.carPosition,
+            self.currentLapNum,
+            self.pitStatus,
+            self.numPitStops,
+            self.sector,
+            self.currentLapInvalid,
+            self.penalties,
+            self.totalWarnings,
+            self.cornerCuttingWarnings,
+            self.numUnservedDriveThroughPens,
+            self.numUnservedStopGoPens,
+            self.gridPosition,
+            self.driverStatus,
+            self.resultStatus,
+            self.pitLaneTimerActive,
+            self.pitLaneTimeInLaneInMS,
+            self.pitStopTimerInMS,
+            self.pitStopShouldServePen,
+            self.speedTrapFastestSpeed,
+            self.speedTrapFastestLap,
+        ) = unpacked
+
+
+class PacketLapData:
+    """
+    Paquet 'Lap Data' :
+      - Header (29 octets)
+      - 22 blocs LapData (57 octets chacun)
+      - 2 octets de fin (PB car idx, Rival car idx)
+    """
+
+    def __init__(self, data: bytes):
+        # 1) En-tête
+        self.header = PacketHeader(data)
+
+        # 2) Tableau LapData[22]
+        base = 29
+        stride = LapData._STRUCT_SIZE  # 57
+        self.lapData: List[LapData] = []
+
+        for i in range(MAX_NUM_CARS_IN_UDP_DATA):
+            start = base + i * stride
+            end = start + stride
+            if end > len(data):
+                raise struct.error(
+                    f"PacketLapData: paquet trop court pour lapData[{i}] (end {end} > len {len(data)})"
+                )
+            self.lapData.append(LapData(data[start:end]))
+
+        # 3) Champs complémentaires Time Trial (2 octets uint8)
+        tail_off = base + MAX_NUM_CARS_IN_UDP_DATA * stride  # 29 + 22*57 = 1283
+        if tail_off + 2 <= len(data):
+            self.timeTrialPBCarIdx = data[tail_off]
+            self.timeTrialRivalCarIdx = data[tail_off + 1]
+        else:
+            # Par sécurité si absent : indices invalides (255)
+            self.timeTrialPBCarIdx = 255
+
+
 # Fonction principale pour parser un paquet
 
 
 def parse_packet(data: bytes) -> Optional[object]:
+    # 0) Paquet trop court pour contenir l'en-tête
     if len(data) < 29:
         return None
+
+    # 1) En-tête + identifiant
     header = PacketHeader(data)
     packet_id = header.packetId
+    # print(f"parse_packet: packet_id={packet_id}")
 
+    # 2) Dispatch sur le type de paquet
     if packet_id == PacketId.MOTION:
-        return PacketMotionData(data)
+        try:
+            return PacketMotionData(data)
+        except struct.error as e:
+            print(f"[MOTION struct.error] len={len(data)} -> {e}")
+            return None
+
     elif packet_id == PacketId.SESSION:
-        return PacketSessionData(data)
+        try:
+            return PacketSessionData(data)
+        except struct.error as e:
+            print(f"[SESSION struct.error] len={len(data)} -> {e}")
+            return None
+
     elif packet_id == PacketId.LAP_DATA:
-        # À implémenter
-        pass
+        # --- DIAGNOSTIC TEMPORAIRE ---
+        total_len = len(data)
+        # Calcul "stride" théorique : (taille paquet - header (29) - 2 octets PB/Rival) / 22
+        stride_guess = (total_len - 29 - 2) / 22
+        # print(f"[Diag LAP] len={total_len} -> stride_guess={stride_guess:.3f}")
+
+        try:
+            return PacketLapData(data)
+        except struct.error as e:
+            # <<< TA LIGNE ÉTAIT INCOMPLÈTE ICI >>>
+            print(
+                f"[LAP struct.error] len={total_len}, stride_guess={stride_guess:.3f} -> {e}")
+            return None
+
     elif packet_id == PacketId.EVENT:
         # À implémenter
-        pass
+        return None
+
     elif packet_id == PacketId.PARTICIPANTS:
         # À implémenter
-        pass
+        return None
+
     elif packet_id == PacketId.CAR_SETUPS:
         # À implémenter
-        pass
+        return None
+
     elif packet_id == PacketId.CAR_TELEMETRY:
         try:
             return PacketCarTelemetryData(data)
-        except struct.error:
+        except struct.error as e:
+            print(f"[CAR_TELEMETRY struct.error] len={len(data)} -> {e}")
             return None
+
     elif packet_id == PacketId.CAR_STATUS:
         # À implémenter
-        pass
+        return None
+
     elif packet_id == PacketId.FINAL_CLASSIFICATION:
         # À implémenter
-        pass
+        return None
+
     elif packet_id == PacketId.LOBBY_INFO:
         # À implémenter
-        pass
+        return None
+
     elif packet_id == PacketId.CAR_DAMAGE:
         # À implémenter
-        pass
+        return None
+
     elif packet_id == PacketId.SESSION_HISTORY:
         # À implémenter
-        pass
+        return None
+
     elif packet_id == PacketId.TYRE_SETS:
         # À implémenter
-        pass
+        return None
+
     elif packet_id == PacketId.MOTION_EX:
         # À implémenter
-        pass
+        return None
+
     elif packet_id == PacketId.TIME_TRIAL:
         # À implémenter
-        pass
+        return None
+
     elif packet_id == PacketId.LAP_POSITIONS:
         # À implémenter
-        pass
-    return None
+        return None
