@@ -51,11 +51,9 @@ app.layout = html.Div([
     Input("update", "n_intervals")
 )
 def update_graphs(_):
-    print("[dash] points dans buffer:", len(
-        telemetry_buf))  # <<< debug une ligne
+    # --- Buffer vide -> placeholders ---
     if not telemetry_buf:
-
-        status = "Buffer: 0 points | Dernière mise à jour: —"
+        status = "Buffer: 0 points\n Dernière mise à jour: —"
         return (
             status,
             make_empty_fig("Vitesse (km/h)", "km/h"),
@@ -65,38 +63,91 @@ def update_graphs(_):
                            note="Aucune donnée (pédales)")
         )
 
-    # Temps relatif
+    # --- Extraction des données ---
     t0 = telemetry_buf[0]["t"]
     t = [x["t"] - t0 for x in telemetry_buf]
     speed = [x.get("speed", 0) for x in telemetry_buf]
     rpm = [x.get("rpm", 0) for x in telemetry_buf]
     gear = [x.get("gear", 0) for x in telemetry_buf]
-    throttle = [x.get("throttle", 0.0) for x in telemetry_buf]
-    brake = [x.get("brake", 0.0) for x in telemetry_buf]
+    throttle = [x.get("throttle", 0) for x in telemetry_buf]
+    brake = [x.get("brake", 0) for x in telemetry_buf]
+    laps = [x.get("lap", None)
+            for x in telemetry_buf]  # IMPORTANT: doit exister
 
     last_ts = telemetry_buf[-1]["t"]
-    status = f"Buffer: {len(telemetry_buf)} points | Dernière mise à jour: {time.strftime('%H:%M:%S', time.localtime(last_ts))}"
+    status = f"Buffer: {len(telemetry_buf)} points\n Dernière mise à jour: {time.strftime('%H:%M:%S', time.localtime(last_ts))}"
 
+    # --- Détection des segments de tour ---
+    lap_segments = []
+    if laps and laps[0] is not None:
+        start_idx = 0
+        current_lap = laps[0]
+        for i in range(1, len(laps)):
+            if laps[i] != current_lap:
+                lap_segments.append({
+                    "lap": current_lap,
+                    "t_start": t[start_idx],
+                    "t_end": t[i-1]
+                })
+                start_idx = i
+                current_lap = laps[i]
+        # Dernier segment jusqu'au dernier point
+        lap_segments.append({
+            "lap": current_lap,
+            "t_start": t[start_idx],
+            "t_end": t[-1]
+        })
+
+    # --- Construction des figures de base ---
     speed_fig = go.Figure(
-        [go.Scatter(x=t, y=speed, mode="lines", name="Vitesse")])
+        [go.Scatter(x=t, y=speed, mode="lines", name="Vitesse", line=dict(width=2))])
     speed_fig.update_layout(title="Vitesse (km/h)", xaxis_title="Temps (s)",
                             yaxis_title="km/h", template="plotly_dark")
 
-    rpm_fig = go.Figure([go.Scatter(x=t, y=rpm, mode="lines", name="RPM")])
+    rpm_fig = go.Figure(
+        [go.Scatter(x=t, y=rpm, mode="lines", name="RPM", line=dict(width=2))])
     rpm_fig.update_layout(title="Régime moteur (RPM)",
                           xaxis_title="Temps (s)", yaxis_title="RPM", template="plotly_dark")
 
     gear_fig = go.Figure(
-        [go.Scatter(x=t, y=gear, mode="lines+markers", name="Gear")])
+        [go.Scatter(x=t, y=gear, mode="lines+markers", name="Gear", line=dict(width=2))])
     gear_fig.update_layout(title="Rapport engagé", xaxis_title="Temps (s)", yaxis_title="Gear",
                            template="plotly_dark", yaxis=dict(dtick=1))
 
     tb_fig = go.Figure([
-        go.Scatter(x=t, y=throttle, mode="lines", name="Throttle"),
-        go.Scatter(x=t, y=brake,    mode="lines", name="Brake"),
+        go.Scatter(x=t, y=throttle, mode="lines",
+                   name="Throttle", line=dict(width=2)),
+        go.Scatter(x=t, y=brake,    mode="lines",
+                   name="Brake",    line=dict(width=2)),
     ])
     tb_fig.update_layout(title="Pédales (Throttle / Brake)",
                          xaxis_title="Temps (s)", yaxis_title="0..1", template="plotly_dark")
+
+    # --- Overlays de tour : lignes + rectangles + étiquettes (très visibles) ---
+    # Couleurs et opacités "fortes" pour qu'on voie clairement
+    vline_color = "#FFD166"  # jaune soutenu
+    band_color = "rgba(255, 209, 102, 0.16)"  # bande semi-transparente
+    label_color = "#FFD166"
+
+    def apply_lap_overlays(fig):
+        # On applique sur CHAQUE figure
+        for seg in lap_segments:
+            # Ligne verticale au début du tour
+            fig.add_vline(x=seg["t_start"], line_color=vline_color,
+                          line_width=2.5, line_dash="dash")
+            # Bande couvrant la durée du tour
+            fig.add_vrect(x0=seg["t_start"], x1=seg["t_end"],
+                          fillcolor=band_color, line_width=0, layer="below")
+            # Étiquette "Lap N" au-dessus de la zone
+            xmid = (seg["t_start"] + seg["t_end"]) / 2.0
+            fig.add_annotation(x=xmid, y=1.05, xref="x", yref="paper",
+                               text=f"Lap {seg['lap']}",
+                               showarrow=False, font=dict(size=13, color=label_color))
+
+    # N’applique que si on a trouvé des segments (sinon rien à tracer)
+    if lap_segments:
+        for f in (speed_fig, rpm_fig, gear_fig, tb_fig):
+            apply_lap_overlays(f)
 
     return status, speed_fig, rpm_fig, gear_fig, tb_fig
 
