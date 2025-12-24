@@ -905,3 +905,433 @@
 2025-12-24 13:20:03.318 INFO [Thread-1] telemetry: PPS=42.5 (packets count=3002)
 2025-12-24 13:20:08.321 INFO [Thread-1] telemetry: PPS=43.7 (packets count=3302)
 2025-12-24 13:20:13.323 INFO [Thread-1] telemetry: PPS=44.7 (packets count=3600)
+2025-12-24 13:31:41.734 INFO [Thread-1] telemetry: SO_RCVBUF set to 1MiB
+2025-12-24 13:31:41.735 INFO [Thread-1] telemetry: UDP bind OK on 0.0.0.0:20777
+2025-12-24 13:31:42.382 WARNING [Thread-5] telemetry: Dash callback slow: 511.8 ms (buf=26, laps=[46], points=26)
+2025-12-24 13:31:46.743 INFO [Thread-1] telemetry: PPS=59.9 (packets count=300)
+2025-12-24 13:31:51.794 INFO [Thread-1] telemetry: PPS=59.7 (packets count=601)
+2025-12-24 13:31:56.807 INFO [Thread-1] telemetry: PPS=60.0 (packets count=904)
+2025-12-24 13:31:58.419 DEBUG [Thread-1] telemetry: append_point: seq=1000 len=1000 last_wall=1766601118.420 lap=46 t_ms=0.0
+2025-12-24 13:32:01.810 INFO [Thread-1] telemetry: PPS=59.9 (packets count=1203)
+2025-12-24 13:32:06.871 INFO [Thread-1] telemetry: PPS=59.7 (packets count=1500)
+2025-12-24 13:32:11.874 INFO [Thread-1] telemetry: PPS=60.0 (packets count=1807)
+2025-12-24 13:32:15.124 DEBUG [Thread-1] telemetry: append_point: seq=2000 len=2000 last_wall=1766601135.125 lap=46 t_ms=8274.0
+2025-12-24 13:32:16.910 INFO [Thread-1] telemetry: PPS=59.9 (packets count=2108)
+2025-12-24 13:32:21.920 INFO [Thread-1] telemetry: PPS=59.9 (packets count=2409)
+2025-12-24 13:32:26.922 INFO [Thread-1] telemetry: PPS=60.0 (packets count=2709)
+2025-12-24 13:38:11.503 INFO [Thread-1] telemetry: SO_RCVBUF set to 1MiB
+2025-12-24 13:38:11.503 INFO [Thread-1] telemetry: UDP bind OK on 0.0.0.0:20777
+2025-12-24 13:38:21.932 INFO [Thread-1] telemetry: PPS=0.1 (packets count=1)
+2025-12-24 13:38:26.952 INFO [Thread-1] telemetry: PPS=19.4 (packets count=300)
+2025-12-24 13:45:27.031 INFO [Thread-1] telemetry: SO_RCVBUF set to 1MiB
+2025-12-24 13:45:27.031 INFO [Thread-1] telemetry: UDP bind OK on 0.0.0.0:20777
+2025-12-24 13:45:43.791 INFO [Thread-1] telemetry: PPS=0.1 (packets count=1)
+2025-12-24 13:46:36.287 INFO [Thread-1] telemetry: PPS=2.1 (packets count=143)
+2025-12-24 13:46:39.491 DEBUG [Thread-1] telemetry: append_point: seq=1000 len=1000 last_wall=1766601999.492 lap=46 t_ms=0.0
+2025-12-24 13:46:41.291 INFO [Thread-1] telemetry: PPS=6.0 (packets count=442)
+2025-12-24 13:46:45.041 DEBUG [Thread-1] telemetry: append_point: seq=2000 len=2000 last_wall=1766602005.041 lap=2 t_ms=0.0
+2025-12-24 13:46:46.321 INFO [Thread-1] telemetry: PPS=9.3 (packets count=740)
+2025-12-24 13:46:50.740 DEBUG [Thread-1] telemetry: append_point: seq=3000 len=3000 last_wall=1766602010.741 lap=2 t_ms=0.0
+2025-12-24 13:46:51.335 INFO [Thread-1] telemetry: PPS=12.4 (packets count=1044)
+2025-12-24 13:46:56.172 DEBUG [Thread-1] telemetry: append_point: seq=4000 len=4000 last_wall=1766602016.173 lap=46 t_ms=1551.0
+2025-12-24 13:46:56.340 INFO [Thread-1] telemetry: PPS=15.0 (packets count=1344)
+2025-12-24 13:47:01.374 INFO [Thread-1] telemetry: PPS=17.4 (packets count=1642)
+2025-12-24 13:47:01.724 DEBUG [Thread-1] telemetry: append_point: seq=5000 len=5000 last_wall=1766602021.724 lap=2 t_ms=7106.0
+2025-12-24 13:47:06.384 INFO [Thread-1] telemetry: PPS=19.6 (packets count=1946)
+2025-12-24 13:47:07.287 DEBUG [Thread-1] telemetry: append_point: seq=6000 len=6000 last_wall=1766602027.288 lap=2 t_ms=12662.0
+2025-12-24 13:47:11.389 INFO [Thread-1] telemetry: PPS=21.5 (packets count=2246)
+2025-12-24 13:47:12.884 DEBUG [Thread-1] telemetry: append_point: seq=7000 len=7000 last_wall=1766602032.884 lap=46 t_ms=18234.0
+2025-12-24 13:47:16.390 INFO [Thread-1] telemetry: PPS=23.2 (packets count=2541)
+2025-12-24 13:47:18.412 DEBUG [Thread-1] telemetry: append_point: seq=8000 len=8000 last_wall=1766602038.412 lap=2 t_ms=23785.0
+2025-12-24 13:47:21.406 INFO [Thread-1] telemetry: PPS=24.9 (packets count=2846)
+2025-12-24 13:47:23.972 DEBUG [Thread-1] telemetry: append_point: seq=9000 len=9000 last_wall=1766602043.973 lap=2 t_ms=29340.0
+2025-12-24 13:47:26.423 INFO [Thread-1] telemetry: PPS=26.4 (packets count=3147)
+2025-12-24 13:47:29.541 DEBUG [Thread-1] telemetry: append_point: seq=10000 len=10000 last_wall=1766602049.541 lap=46 t_ms=34912.0
+2025-12-24 13:47:31.433 INFO [Thread-1] telemetry: PPS=27.7 (packets count=3448)
+2025-12-24 13:47:35.171 DEBUG [Thread-1] telemetry: append_point: seq=11000 len=11000 last_wall=1766602055.172 lap=2 t_ms=40467.0
+2025-12-24 13:47:36.439 INFO [Thread-1] telemetry: PPS=29.0 (packets count=3748)
+2025-12-24 13:47:40.822 DEBUG [Thread-1] telemetry: append_point: seq=12000 len=12000 last_wall=1766602060.823 lap=2 t_ms=46023.0
+2025-12-24 13:47:41.453 INFO [Thread-1] telemetry: PPS=30.1 (packets count=4048)
+2025-12-24 13:47:43.991 WARNING [Thread-503] telemetry: Dash callback slow: 415.2 ms (buf=12537, overlays=['Lap 46', 'Personal Best (PB)'], points=7118)
+2025-12-24 13:47:46.220 DEBUG [Thread-1] telemetry: append_point: seq=13000 len=13000 last_wall=1766602066.220 lap=46 t_ms=51595.0
+2025-12-24 13:47:46.541 INFO [Thread-1] telemetry: PPS=31.2 (packets count=4348)
+2025-12-24 13:47:51.128 WARNING [Thread-530] telemetry: Dash callback slow: 460.1 ms (buf=13809, overlays=['Lap 46', 'Personal Best (PB)'], points=7966)
+2025-12-24 13:47:51.569 WARNING [Thread-532] telemetry: Dash callback slow: 442.8 ms (buf=13845, overlays=['Lap 46', 'Personal Best (PB)'], points=7990)
+2025-12-24 13:47:51.569 INFO [Thread-1] telemetry: PPS=32.0 (packets count=4626)
+2025-12-24 13:47:52.054 DEBUG [Thread-1] telemetry: append_point: seq=14000 len=14000 last_wall=1766602072.054 lap=2 t_ms=57148.0
+2025-12-24 13:47:56.224 WARNING [Thread-547] telemetry: Dash callback slow: 566.2 ms (buf=14700, overlays=['Lap 46', 'Personal Best (PB)'], points=8560)
+2025-12-24 13:47:56.547 WARNING [Thread-549] telemetry: Dash callback slow: 590.9 ms (buf=14745, overlays=['Lap 46', 'Personal Best (PB)'], points=8590)
+2025-12-24 13:47:56.655 INFO [Thread-1] telemetry: PPS=32.9 (packets count=4921)
+2025-12-24 13:47:57.489 DEBUG [Thread-1] telemetry: append_point: seq=15000 len=15000 last_wall=1766602077.489 lap=2 t_ms=62703.0
+2025-12-24 13:47:58.439 WARNING [Thread-556] telemetry: Dash callback slow: 425.1 ms (buf=15123, overlays=['Lap 46', 'Personal Best (PB)'], points=8842)
+2025-12-24 13:47:58.891 WARNING [Thread-558] telemetry: Dash callback slow: 471.1 ms (buf=15135, overlays=['Lap 46', 'Personal Best (PB)'], points=8850)
+2025-12-24 13:47:59.396 WARNING [Thread-560] telemetry: Dash callback slow: 441.0 ms (buf=15303, overlays=['Lap 46', 'Personal Best (PB)'], points=8962)
+2025-12-24 13:48:01.041 WARNING [Thread-564] telemetry: Dash callback slow: 581.7 ms (buf=15561, overlays=['Lap 46', 'Personal Best (PB)'], points=9134)
+2025-12-24 13:48:01.387 WARNING [Thread-567] telemetry: Dash callback slow: 616.7 ms (buf=15603, overlays=['Lap 46', 'Personal Best (PB)'], points=9162)
+2025-12-24 13:48:01.723 INFO [Thread-1] telemetry: PPS=33.7 (packets count=5215)
+2025-12-24 13:48:01.830 WARNING [Thread-569] telemetry: Dash callback slow: 441.5 ms (buf=15636, overlays=['Lap 46', 'Personal Best (PB)'], points=9184)
+2025-12-24 13:48:02.909 DEBUG [Thread-1] telemetry: append_point: seq=16000 len=16000 last_wall=1766602082.910 lap=46 t_ms=68276.0
+2025-12-24 13:48:03.489 WARNING [Thread-574] telemetry: Dash callback slow: 589.8 ms (buf=16005, overlays=['Lap 46', 'Personal Best (PB)'], points=9430)
+2025-12-24 13:48:03.928 WARNING [Thread-576] telemetry: Dash callback slow: 739.5 ms (buf=16020, overlays=['Lap 46', 'Personal Best (PB)'], points=9440)
+2025-12-24 13:48:04.341 WARNING [Thread-578] telemetry: Dash callback slow: 572.9 ms (buf=16032, overlays=['Lap 46', 'Personal Best (PB)'], points=9448)
+2025-12-24 13:48:04.827 WARNING [Thread-580] telemetry: Dash callback slow: 480.4 ms (buf=16083, overlays=['Lap 46', 'Personal Best (PB)'], points=9482)
+2025-12-24 13:48:06.456 WARNING [Thread-585] telemetry: Dash callback slow: 504.6 ms (buf=16554, overlays=['Lap 46', 'Personal Best (PB)'], points=9796)
+2025-12-24 13:48:06.798 WARNING [Thread-587] telemetry: Dash callback slow: 574.0 ms (buf=16587, overlays=['Lap 46', 'Personal Best (PB)'], points=9818)
+2025-12-24 13:48:06.798 INFO [Thread-1] telemetry: PPS=34.6 (packets count=5532)
+2025-12-24 13:48:07.260 WARNING [Thread-589] telemetry: Dash callback slow: 460.4 ms (buf=16596, overlays=['Lap 46', 'Personal Best (PB)'], points=9824)
+2025-12-24 13:48:07.774 WARNING [Thread-591] telemetry: Dash callback slow: 431.8 ms (buf=16743, overlays=['Lap 46', 'Personal Best (PB)'], points=9922)
+2025-12-24 13:48:08.381 WARNING [Thread-593] telemetry: Dash callback slow: 484.7 ms (buf=16890, overlays=['Lap 46', 'Personal Best (PB)'], points=10020)
+2025-12-24 13:48:08.482 DEBUG [Thread-1] telemetry: append_point: seq=17000 len=17000 last_wall=1766602088.483 lap=2 t_ms=73833.0
+2025-12-24 13:48:10.113 WARNING [Thread-598] telemetry: Dash callback slow: 586.6 ms (buf=17202, overlays=['Lap 46', 'Personal Best (PB)'], points=10228)
+2025-12-24 13:48:10.441 WARNING [Thread-600] telemetry: Dash callback slow: 693.4 ms (buf=17205, overlays=['Lap 46', 'Personal Best (PB)'], points=10230)
+2025-12-24 13:48:11.040 WARNING [Thread-602] telemetry: Dash callback slow: 550.0 ms (buf=17238, overlays=['Lap 46', 'Personal Best (PB)'], points=10252)
+2025-12-24 13:48:11.471 WARNING [Thread-604] telemetry: Dash callback slow: 516.5 ms (buf=17247, overlays=['Lap 46', 'Personal Best (PB)'], points=10258)
+2025-12-24 13:48:11.802 INFO [Thread-1] telemetry: PPS=35.4 (packets count=5836)
+2025-12-24 13:48:12.526 WARNING [Thread-609] telemetry: Dash callback slow: 459.5 ms (buf=17619, overlays=['Lap 46', 'Personal Best (PB)'], points=10506)
+2025-12-24 13:48:13.149 WARNING [Thread-611] telemetry: Dash callback slow: 502.0 ms (buf=17754, overlays=['Lap 46', 'Personal Best (PB)'], points=10596)
+2025-12-24 13:48:13.641 WARNING [Thread-613] telemetry: Dash callback slow: 402.8 ms (buf=17862, overlays=['Lap 46', 'Personal Best (PB)'], points=10668)
+2025-12-24 13:48:14.021 DEBUG [Thread-1] telemetry: append_point: seq=18000 len=18000 last_wall=1766602094.022 lap=2 t_ms=79389.0
+2025-12-24 13:48:14.943 WARNING [Thread-615] telemetry: Dash callback slow: 589.9 ms (buf=18069, overlays=['Lap 46', 'Personal Best (PB)'], points=10806)
+2025-12-24 13:48:15.341 WARNING [Thread-618] telemetry: Dash callback slow: 716.8 ms (buf=18093, overlays=['Lap 46', 'Personal Best (PB)'], points=10822)
+2025-12-24 13:48:16.036 WARNING [Thread-620] telemetry: Dash callback slow: 663.0 ms (buf=18111, overlays=['Lap 46', 'Personal Best (PB)'], points=10834)
+2025-12-24 13:48:16.408 WARNING [Thread-622] telemetry: Dash callback slow: 627.5 ms (buf=18120, overlays=['Lap 46', 'Personal Best (PB)'], points=10840)
+2025-12-24 13:48:16.873 INFO [Thread-1] telemetry: PPS=35.7 (packets count=6059)
+2025-12-24 13:48:16.967 WARNING [Thread-624] telemetry: Dash callback slow: 593.9 ms (buf=18135, overlays=['Lap 46', 'Personal Best (PB)'], points=10850)
+2025-12-24 13:48:17.476 WARNING [Thread-626] telemetry: Dash callback slow: 509.0 ms (buf=18180, overlays=['Lap 46', 'Personal Best (PB)'], points=10880)
+2025-12-24 13:48:18.097 WARNING [Thread-629] telemetry: Dash callback slow: 516.9 ms (buf=18345, overlays=['Lap 46', 'Personal Best (PB)'], points=10990)
+2025-12-24 13:48:18.626 WARNING [Thread-631] telemetry: Dash callback slow: 503.9 ms (buf=18387, overlays=['Lap 46', 'Personal Best (PB)'], points=11018)
+2025-12-24 13:48:19.141 WARNING [Thread-633] telemetry: Dash callback slow: 408.0 ms (buf=18528, overlays=['Lap 46', 'Personal Best (PB)'], points=11112)
+2025-12-24 13:48:19.667 WARNING [Thread-635] telemetry: Dash callback slow: 410.4 ms (buf=18855, overlays=['Lap 46', 'Personal Best (PB)'], points=11330)
+2025-12-24 13:48:19.768 DEBUG [Thread-1] telemetry: append_point: seq=19000 len=19000 last_wall=1766602099.769 lap=46 t_ms=84962.0
+2025-12-24 13:48:21.006 WARNING [Thread-637] telemetry: Dash callback slow: 606.3 ms (buf=19149, overlays=['Lap 46', 'Personal Best (PB)'], points=11526)
+2025-12-24 13:48:21.484 WARNING [Thread-640] telemetry: Dash callback slow: 894.2 ms (buf=19161, overlays=['Lap 46', 'Personal Best (PB)'], points=11534)
+2025-12-24 13:48:22.094 WARNING [Thread-642] telemetry: Dash callback slow: 790.7 ms (buf=19194, overlays=['Lap 46', 'Personal Best (PB)'], points=11556)
+2025-12-24 13:48:22.204 INFO [Thread-1] telemetry: PPS=36.6 (packets count=6403)
+2025-12-24 13:48:22.584 WARNING [Thread-644] telemetry: Dash callback slow: 831.0 ms (buf=19203, overlays=['Lap 46', 'Personal Best (PB)'], points=11562)
+2025-12-24 13:48:23.213 WARNING [Thread-646] telemetry: Dash callback slow: 860.3 ms (buf=19233, overlays=['Lap 46', 'Personal Best (PB)'], points=11582)
+2025-12-24 13:48:23.668 WARNING [Thread-648] telemetry: Dash callback slow: 681.9 ms (buf=19242, overlays=['Lap 46', 'Personal Best (PB)'], points=11588)
+2025-12-24 13:48:24.174 WARNING [Thread-651] telemetry: Dash callback slow: 542.4 ms (buf=19257, overlays=['Lap 46', 'Personal Best (PB)'], points=11598)
+2025-12-24 13:48:24.710 WARNING [Thread-653] telemetry: Dash callback slow: 527.7 ms (buf=19272, overlays=['Lap 46', 'Personal Best (PB)'], points=11608)
+2025-12-24 13:48:25.259 WARNING [Thread-655] telemetry: Dash callback slow: 486.5 ms (buf=19377, overlays=['Lap 47', 'Personal Best (PB)'], points=6489)
+2025-12-24 13:48:26.012 DEBUG [Thread-1] telemetry: append_point: seq=20000 len=20000 last_wall=1766602106.012 lap=2 t_ms=4820.0
+2025-12-24 13:48:27.217 INFO [Thread-1] telemetry: PPS=37.4 (packets count=6739)
+2025-12-24 13:48:27.724 WARNING [Thread-664] telemetry: Dash callback slow: 411.3 ms (buf=20244, overlays=['Lap 47', 'Personal Best (PB)'], points=7067)
+2025-12-24 13:48:30.232 WARNING [Thread-673] telemetry: Dash callback slow: 469.8 ms (buf=20685, overlays=['Lap 47', 'Personal Best (PB)'], points=7361)
+2025-12-24 13:48:30.557 WARNING [Thread-675] telemetry: Dash callback slow: 447.5 ms (buf=20712, overlays=['Lap 47', 'Personal Best (PB)'], points=7379)
+2025-12-24 13:48:31.573 DEBUG [Thread-1] telemetry: append_point: seq=21000 len=21000 last_wall=1766602111.573 lap=2 t_ms=10376.0
+2025-12-24 13:48:32.305 INFO [Thread-1] telemetry: PPS=37.9 (packets count=7026)
+2025-12-24 13:48:34.914 WARNING [Thread-690] telemetry: Dash callback slow: 419.5 ms (buf=21534, overlays=['Lap 47', 'Personal Best (PB)'], points=7927)
+2025-12-24 13:48:37.138 DEBUG [Thread-1] telemetry: append_point: seq=22000 len=22000 last_wall=1766602117.139 lap=47 t_ms=15948.0
+2025-12-24 13:48:37.305 INFO [Thread-1] telemetry: PPS=38.6 (packets count=7344)
+2025-12-24 13:48:39.936 WARNING [Thread-708] telemetry: Dash callback slow: 554.6 ms (buf=22410, overlays=['Lap 47', 'Personal Best (PB)'], points=8511)
+2025-12-24 13:48:40.274 WARNING [Thread-710] telemetry: Dash callback slow: 539.5 ms (buf=22449, overlays=['Lap 47', 'Personal Best (PB)'], points=8537)
+2025-12-24 13:48:42.102 WARNING [Thread-717] telemetry: Dash callback slow: 478.7 ms (buf=22791, overlays=['Lap 47', 'Personal Best (PB)'], points=8765)
+2025-12-24 13:48:42.307 INFO [Thread-1] telemetry: PPS=39.0 (packets count=7611)
+2025-12-24 13:48:42.633 WARNING [Thread-719] telemetry: Dash callback slow: 474.9 ms (buf=22845, overlays=['Lap 47', 'Personal Best (PB)'], points=8801)
+2025-12-24 13:48:42.739 DEBUG [Thread-1] telemetry: append_point: seq=23000 len=23000 last_wall=1766602122.739 lap=2 t_ms=21502.0
+2025-12-24 13:48:44.083 WARNING [Thread-723] telemetry: Dash callback slow: 402.0 ms (buf=23181, overlays=['Lap 47', 'Personal Best (PB)'], points=9025)
+2025-12-24 13:48:44.561 WARNING [Thread-725] telemetry: Dash callback slow: 572.6 ms (buf=23208, overlays=['Lap 47', 'Personal Best (PB)'], points=9043)
+2025-12-24 13:48:45.037 WARNING [Thread-728] telemetry: Dash callback slow: 474.4 ms (buf=23226, overlays=['Lap 47', 'Personal Best (PB)'], points=9055)
+2025-12-24 13:48:46.640 WARNING [Thread-732] telemetry: Dash callback slow: 524.3 ms (buf=23625, overlays=['Lap 47', 'Personal Best (PB)'], points=9321)
+2025-12-24 13:48:47.192 WARNING [Thread-734] telemetry: Dash callback slow: 823.4 ms (buf=23631, overlays=['Lap 47', 'Personal Best (PB)'], points=9325)
+2025-12-24 13:48:47.422 INFO [Thread-1] telemetry: PPS=39.3 (packets count=7884)
+2025-12-24 13:48:47.567 WARNING [Thread-736] telemetry: Dash callback slow: 598.0 ms (buf=23643, overlays=['Lap 47', 'Personal Best (PB)'], points=9333)
+2025-12-24 13:48:48.031 WARNING [Thread-739] telemetry: Dash callback slow: 462.4 ms (buf=23679, overlays=['Lap 47', 'Personal Best (PB)'], points=9357)
+2025-12-24 13:48:48.385 DEBUG [Thread-1] telemetry: append_point: seq=24000 len=24000 last_wall=1766602128.386 lap=2 t_ms=27057.0
+2025-12-24 13:48:49.749 WARNING [Thread-743] telemetry: Dash callback slow: 642.9 ms (buf=24162, overlays=['Lap 47', 'Personal Best (PB)'], points=9679)
+2025-12-24 13:48:50.073 WARNING [Thread-745] telemetry: Dash callback slow: 685.4 ms (buf=24171, overlays=['Lap 47', 'Personal Best (PB)'], points=9685)
+2025-12-24 13:48:50.507 WARNING [Thread-747] telemetry: Dash callback slow: 473.5 ms (buf=24186, overlays=['Lap 47', 'Personal Best (PB)'], points=9695)
+2025-12-24 13:48:51.040 WARNING [Thread-750] telemetry: Dash callback slow: 447.7 ms (buf=24432, overlays=['Lap 47', 'Personal Best (PB)'], points=9859)
+2025-12-24 13:48:52.131 WARNING [Thread-754] telemetry: Dash callback slow: 483.6 ms (buf=24612, overlays=['Lap 47', 'Personal Best (PB)'], points=9979)
+2025-12-24 13:48:52.489 INFO [Thread-1] telemetry: PPS=40.1 (packets count=8243)
+2025-12-24 13:48:53.807 WARNING [Thread-758] telemetry: Dash callback slow: 536.1 ms (buf=24903, overlays=['Lap 47', 'Personal Best (PB)'], points=10173)
+2025-12-24 13:48:54.193 WARNING [Thread-761] telemetry: Dash callback slow: 621.0 ms (buf=24930, overlays=['Lap 47', 'Personal Best (PB)'], points=10191)
+2025-12-24 13:48:54.539 DEBUG [Thread-1] telemetry: append_point: seq=25000 len=25000 last_wall=1766602134.539 lap=47 t_ms=32629.0
+2025-12-24 13:48:54.733 WARNING [Thread-763] telemetry: Dash callback slow: 543.4 ms (buf=24975, overlays=['Lap 47', 'Personal Best (PB)'], points=10221)
+2025-12-24 13:48:55.273 WARNING [Thread-765] telemetry: Dash callback slow: 469.3 ms (buf=25173, overlays=['Lap 47', 'Personal Best (PB)'], points=10353)
+2025-12-24 13:48:55.797 WARNING [Thread-767] telemetry: Dash callback slow: 412.4 ms (buf=25245, overlays=['Lap 47', 'Personal Best (PB)'], points=10401)
+2025-12-24 13:48:57.538 INFO [Thread-1] telemetry: PPS=40.5 (packets count=8529)
+2025-12-24 13:48:57.587 WARNING [Thread-772] telemetry: Dash callback slow: 621.1 ms (buf=25578, overlays=['Lap 47', 'Personal Best (PB)'], points=10623)
+2025-12-24 13:48:57.887 WARNING [Thread-774] telemetry: Dash callback slow: 714.4 ms (buf=25584, overlays=['Lap 47', 'Personal Best (PB)'], points=10627)
+2025-12-24 13:48:58.362 WARNING [Thread-776] telemetry: Dash callback slow: 525.2 ms (buf=25590, overlays=['Lap 47', 'Personal Best (PB)'], points=10631)
+2025-12-24 13:48:58.854 WARNING [Thread-778] telemetry: Dash callback slow: 497.6 ms (buf=25608, overlays=['Lap 47', 'Personal Best (PB)'], points=10643)
+2025-12-24 13:48:59.506 WARNING [Thread-780] telemetry: Dash callback slow: 527.5 ms (buf=25668, overlays=['Lap 47', 'Personal Best (PB)'], points=10683)
+2025-12-24 13:48:59.660 DEBUG [Thread-1] telemetry: append_point: seq=26000 len=26000 last_wall=1766602139.660 lap=2 t_ms=38184.0
+2025-12-24 13:49:00.046 WARNING [Thread-783] telemetry: Dash callback slow: 423.6 ms (buf=26037, overlays=['Lap 47', 'Personal Best (PB)'], points=10929)
+2025-12-24 13:49:00.561 WARNING [Thread-785] telemetry: Dash callback slow: 410.7 ms (buf=26148, overlays=['Lap 47', 'Personal Best (PB)'], points=11003)
+2025-12-24 13:49:01.080 WARNING [Thread-787] telemetry: Dash callback slow: 413.2 ms (buf=26241, overlays=['Lap 47', 'Personal Best (PB)'], points=11065)
+2025-12-24 13:49:02.455 WARNING [Thread-789] telemetry: Dash callback slow: 654.1 ms (buf=26442, overlays=['Lap 47', 'Personal Best (PB)'], points=11199)
+2025-12-24 13:49:02.542 INFO [Thread-1] telemetry: PPS=40.9 (packets count=8819)
+2025-12-24 13:49:02.744 WARNING [Thread-791] telemetry: Dash callback slow: 771.5 ms (buf=26448, overlays=['Lap 47', 'Personal Best (PB)'], points=11203)
+2025-12-24 13:49:03.328 WARNING [Thread-794] telemetry: Dash callback slow: 590.7 ms (buf=26460, overlays=['Lap 47', 'Personal Best (PB)'], points=11211)
+2025-12-24 13:49:03.873 WARNING [Thread-796] telemetry: Dash callback slow: 726.8 ms (buf=26469, overlays=['Lap 47', 'Personal Best (PB)'], points=11217)
+2025-12-24 13:49:04.529 WARNING [Thread-798] telemetry: Dash callback slow: 675.9 ms (buf=26502, overlays=['Lap 47', 'Personal Best (PB)'], points=11239)
+2025-12-24 13:49:04.979 WARNING [Thread-800] telemetry: Dash callback slow: 623.9 ms (buf=26508, overlays=['Lap 47', 'Personal Best (PB)'], points=11243)
+2025-12-24 13:49:05.524 WARNING [Thread-802] telemetry: Dash callback slow: 535.7 ms (buf=26520, overlays=['Lap 47', 'Personal Best (PB)'], points=11251)
+2025-12-24 13:49:06.060 WARNING [Thread-805] telemetry: Dash callback slow: 488.7 ms (buf=26556, overlays=['Lap 47', 'Personal Best (PB)'], points=11275)
+2025-12-24 13:49:06.690 WARNING [Thread-807] telemetry: Dash callback slow: 533.6 ms (buf=26613, overlays=['Lap 47', 'Personal Best (PB)'], points=11313)
+2025-12-24 13:49:07.225 WARNING [Thread-809] telemetry: Dash callback slow: 456.3 ms (buf=26850, overlays=['Lap 47', 'Personal Best (PB)'], points=11471)
+2025-12-24 13:49:07.637 INFO [Thread-1] telemetry: PPS=40.8 (packets count=8992)
+2025-12-24 13:49:07.824 WARNING [Thread-811] telemetry: Dash callback slow: 489.6 ms (buf=26964, overlays=['Lap 47', 'Personal Best (PB)'], points=11547)
+2025-12-24 13:49:07.927 DEBUG [Thread-1] telemetry: append_point: seq=27000 len=27000 last_wall=1766602147.927 lap=2 t_ms=43742.0
+2025-12-24 13:49:08.362 WARNING [Thread-813] telemetry: Dash callback slow: 432.9 ms (buf=27003, overlays=['Lap 47', 'Personal Best (PB)'], points=11573)
+2025-12-24 13:49:09.012 WARNING [Thread-816] telemetry: Dash callback slow: 537.1 ms (buf=27123, overlays=['Lap 47', 'Personal Best (PB)'], points=11653)
+2025-12-24 13:49:09.579 WARNING [Thread-818] telemetry: Dash callback slow: 440.7 ms (buf=27417, overlays=['Lap 47', 'Personal Best (PB)'], points=11849)
+2025-12-24 13:49:10.163 WARNING [Thread-820] telemetry: Dash callback slow: 442.7 ms (buf=27525, overlays=['Lap 47', 'Personal Best (PB)'], points=11921)
+2025-12-24 13:49:10.712 WARNING [Thread-822] telemetry: Dash callback slow: 433.7 ms (buf=27633, overlays=['Lap 47', 'Personal Best (PB)'], points=11993)
+2025-12-24 13:49:11.381 WARNING [Thread-824] telemetry: Dash callback slow: 535.2 ms (buf=27834, overlays=['Lap 47', 'Personal Best (PB)'], points=12127)
+2025-12-24 13:49:11.873 DEBUG [Thread-1] telemetry: append_point: seq=28000 len=28000 last_wall=1766602151.873 lap=47 t_ms=50615.0
+2025-12-24 13:49:11.939 WARNING [Thread-827] telemetry: Dash callback slow: 439.0 ms (buf=27951, overlays=['Lap 47', 'Personal Best (PB)'], points=12205)
+2025-12-24 13:49:12.574 WARNING [Thread-829] telemetry: Dash callback slow: 516.3 ms (buf=28068, overlays=['Lap 47', 'Personal Best (PB)'], points=12283)
+2025-12-24 13:49:12.691 INFO [Thread-1] telemetry: PPS=41.6 (packets count=9383)
+2025-12-24 13:49:13.140 WARNING [Thread-831] telemetry: Dash callback slow: 441.6 ms (buf=28170, overlays=['Lap 47', 'Personal Best (PB)'], points=12351)
+2025-12-24 13:49:13.809 WARNING [Thread-833] telemetry: Dash callback slow: 551.6 ms (buf=28266, overlays=['Lap 47', 'Personal Best (PB)'], points=12415)
+2025-12-24 13:49:14.396 WARNING [Thread-835] telemetry: Dash callback slow: 455.5 ms (buf=28392, overlays=['Lap 47', 'Personal Best (PB)'], points=12499)
+2025-12-24 13:49:14.968 WARNING [Thread-838] telemetry: Dash callback slow: 452.6 ms (buf=28497, overlays=['Lap 47', 'Personal Best (PB)'], points=12569)
+2025-12-24 13:49:15.527 WARNING [Thread-840] telemetry: Dash callback slow: 447.9 ms (buf=28596, overlays=['Lap 47', 'Personal Best (PB)'], points=12635)
+2025-12-24 13:49:16.206 WARNING [Thread-842] telemetry: Dash callback slow: 542.8 ms (buf=28704, overlays=['Lap 47', 'Personal Best (PB)'], points=12707)
+2025-12-24 13:49:16.839 WARNING [Thread-844] telemetry: Dash callback slow: 515.2 ms (buf=28824, overlays=['Lap 47', 'Personal Best (PB)'], points=12787)
+2025-12-24 13:49:17.431 WARNING [Thread-846] telemetry: Dash callback slow: 461.4 ms (buf=28935, overlays=['Lap 47', 'Personal Best (PB)'], points=12861)
+2025-12-24 13:49:17.606 DEBUG [Thread-1] telemetry: append_point: seq=29000 len=29000 last_wall=1766602157.607 lap=2 t_ms=56171.0
+2025-12-24 13:49:17.704 INFO [Thread-1] telemetry: PPS=41.9 (packets count=9668)
+2025-12-24 13:49:18.034 WARNING [Thread-849] telemetry: Dash callback slow: 465.7 ms (buf=29000, overlays=['Lap 47', 'Personal Best (PB)'], points=12905)
+2025-12-24 13:49:18.733 WARNING [Thread-851] telemetry: Dash callback slow: 578.9 ms (buf=29067, overlays=['Lap 47', 'Personal Best (PB)'], points=12949)
+2025-12-24 13:49:19.332 WARNING [Thread-853] telemetry: Dash callback slow: 564.3 ms (buf=29172, overlays=['Lap 47', 'Personal Best (PB)'], points=13019)
+2025-12-24 13:49:19.908 WARNING [Thread-855] telemetry: Dash callback slow: 566.3 ms (buf=29253, overlays=['Lap 47', 'Personal Best (PB)'], points=13073)
+2025-12-24 13:49:20.499 WARNING [Thread-857] telemetry: Dash callback slow: 576.4 ms (buf=29400, overlays=['Lap 47', 'Personal Best (PB)'], points=13171)
+2025-12-24 13:49:21.239 WARNING [Thread-860] telemetry: Dash callback slow: 634.1 ms (buf=29490, overlays=['Lap 47', 'Personal Best (PB)'], points=13231)
+2025-12-24 13:49:21.868 WARNING [Thread-862] telemetry: Dash callback slow: 616.7 ms (buf=29616, overlays=['Lap 47', 'Personal Best (PB)'], points=13315)
+2025-12-24 13:49:22.502 WARNING [Thread-864] telemetry: Dash callback slow: 700.1 ms (buf=29625, overlays=['Lap 47', 'Personal Best (PB)'], points=13321)
+2025-12-24 13:49:22.720 INFO [Thread-1] telemetry: PPS=42.0 (packets count=9892)
+2025-12-24 13:49:23.166 WARNING [Thread-866] telemetry: Dash callback slow: 784.4 ms (buf=29667, overlays=['Lap 47', 'Personal Best (PB)'], points=13349)
+2025-12-24 13:49:23.819 WARNING [Thread-868] telemetry: Dash callback slow: 899.2 ms (buf=29682, overlays=['Lap 47', 'Personal Best (PB)'], points=13359)
+2025-12-24 13:49:24.582 WARNING [Thread-871] telemetry: Dash callback slow: 847.6 ms (buf=29694, overlays=['Lap 47', 'Personal Best (PB)'], points=13367)
+2025-12-24 13:49:25.065 WARNING [Thread-873] telemetry: Dash callback slow: 878.6 ms (buf=29760, overlays=['Lap 47', 'Personal Best (PB)'], points=13411)
+2025-12-24 13:49:25.872 WARNING [Thread-875] telemetry: Dash callback slow: 1016.6 ms (buf=29769, overlays=['Lap 47', 'Personal Best (PB)'], points=13417)
+2025-12-24 13:49:26.590 WARNING [Thread-877] telemetry: Dash callback slow: 1188.5 ms (buf=29778, overlays=['Lap 47', 'Personal Best (PB)'], points=13423)
+2025-12-24 13:49:27.066 WARNING [Thread-879] telemetry: Dash callback slow: 1025.3 ms (buf=29799, overlays=['Lap 47', 'Personal Best (PB)'], points=13437)
+2025-12-24 13:49:27.753 INFO [Thread-1] telemetry: PPS=41.4 (packets count=9973)
+2025-12-24 13:49:27.955 WARNING [Thread-882] telemetry: Dash callback slow: 1147.3 ms (buf=29808, overlays=['Lap 47', 'Personal Best (PB)'], points=13443)
+2025-12-24 13:49:28.506 WARNING [Thread-884] telemetry: Dash callback slow: 1271.4 ms (buf=29910, overlays=['Lap 47', 'Personal Best (PB)'], points=13511)
+2025-12-24 13:49:29.158 WARNING [Thread-886] telemetry: Dash callback slow: 1239.9 ms (buf=29919, overlays=['Lap 47', 'Personal Best (PB)'], points=13517)
+2025-12-24 13:49:29.899 WARNING [Thread-888] telemetry: Dash callback slow: 1226.0 ms (buf=29928, overlays=['Lap 47', 'Personal Best (PB)'], points=13523)
+2025-12-24 13:49:30.135 WARNING [Thread-890] telemetry: Dash callback slow: 1079.7 ms (buf=29937, overlays=['Lap 47', 'Personal Best (PB)'], points=13529)
+2025-12-24 13:49:31.571 WARNING [Thread-895] telemetry: Dash callback slow: 1279.5 ms (buf=29952, overlays=['Lap 47', 'Personal Best (PB)'], points=13539)
+2025-12-24 13:49:31.572 WARNING [Thread-893] telemetry: Dash callback slow: 1603.4 ms (buf=29952, overlays=['Lap 47', 'Personal Best (PB)'], points=13539)
+2025-12-24 13:49:32.615 WARNING [Thread-897] telemetry: Dash callback slow: 1578.5 ms (buf=29961, overlays=['Lap 47', 'Personal Best (PB)'], points=13545)
+2025-12-24 13:49:32.939 INFO [Thread-1] telemetry: PPS=40.6 (packets count=9994)
+2025-12-24 13:49:33.040 WARNING [Thread-899] telemetry: Dash callback slow: 1541.2 ms (buf=29967, overlays=['Lap 47', 'Personal Best (PB)'], points=13549)
+2025-12-24 13:49:33.906 WARNING [Thread-901] telemetry: Dash callback slow: 1572.5 ms (buf=29976, overlays=['Lap 47', 'Personal Best (PB)'], points=13555)
+2025-12-24 13:49:34.252 DEBUG [Thread-1] telemetry: append_point: seq=30000 len=30000 last_wall=1766602174.253 lap=2 t_ms=61726.0
+2025-12-24 13:49:34.939 WARNING [Thread-904] telemetry: Dash callback slow: 1947.5 ms (buf=29985, overlays=['Lap 47', 'Personal Best (PB)'], points=13561)
+2025-12-24 13:49:35.206 WARNING [Thread-906] telemetry: Dash callback slow: 1875.4 ms (buf=29988, overlays=['Lap 47', 'Personal Best (PB)'], points=13563)
+2025-12-24 13:49:35.614 WARNING [Thread-908] telemetry: Dash callback slow: 1626.0 ms (buf=29994, overlays=['Lap 47', 'Personal Best (PB)'], points=13567)
+2025-12-24 13:49:36.734 WARNING [Thread-910] telemetry: Dash callback slow: 1945.0 ms (buf=30003, overlays=['Lap 47', 'Personal Best (PB)'], points=13573)
+2025-12-24 13:49:37.109 WARNING [Thread-912] telemetry: Dash callback slow: 1772.6 ms (buf=30009, overlays=['Lap 47', 'Personal Best (PB)'], points=13577)
+2025-12-24 13:49:38.004 INFO [Thread-1] telemetry: PPS=39.9 (packets count=10011)
+2025-12-24 13:49:38.431 WARNING [Thread-915] telemetry: Dash callback slow: 2261.7 ms (buf=30015, overlays=['Lap 47', 'Personal Best (PB)'], points=13581)
+2025-12-24 13:49:38.626 WARNING [Thread-917] telemetry: Dash callback slow: 2037.5 ms (buf=30021, overlays=['Lap 47', 'Personal Best (PB)'], points=13585)
+2025-12-24 13:49:38.937 WARNING [Thread-919] telemetry: Dash callback slow: 2033.8 ms (buf=30024, overlays=['Lap 47', 'Personal Best (PB)'], points=13587)
+2025-12-24 13:49:40.006 WARNING [Thread-921] telemetry: Dash callback slow: 2374.2 ms (buf=30033, overlays=['Lap 47', 'Personal Best (PB)'], points=13593)
+2025-12-24 13:49:40.139 WARNING [Thread-923] telemetry: Dash callback slow: 1924.3 ms (buf=30033, overlays=['Lap 47', 'Personal Best (PB)'], points=13593)
+2025-12-24 13:49:41.023 WARNING [Thread-926] telemetry: Dash callback slow: 1684.1 ms (buf=30045, overlays=['Lap 47', 'Personal Best (PB)'], points=13601)
+2025-12-24 13:49:42.165 WARNING [Thread-928] telemetry: Dash callback slow: 2142.7 ms (buf=30051, overlays=['Lap 47', 'Personal Best (PB)'], points=13605)
+2025-12-24 13:49:42.649 WARNING [Thread-930] telemetry: Dash callback slow: 2366.9 ms (buf=30066, overlays=['Lap 47', 'Personal Best (PB)'], points=13615)
+2025-12-24 13:49:42.874 WARNING [Thread-932] telemetry: Dash callback slow: 1985.2 ms (buf=30066, overlays=['Lap 47', 'Personal Best (PB)'], points=13615)
+2025-12-24 13:49:43.021 INFO [Thread-1] telemetry: PPS=39.2 (packets count=10027)
+2025-12-24 13:49:43.731 WARNING [Thread-934] telemetry: Dash callback slow: 2259.3 ms (buf=30072, overlays=['Lap 47', 'Personal Best (PB)'], points=13619)
+2025-12-24 13:49:44.826 WARNING [Thread-937] telemetry: Dash callback slow: 2555.6 ms (buf=30075, overlays=['Lap 47', 'Personal Best (PB)'], points=13621)
+2025-12-24 13:49:45.363 WARNING [Thread-941] telemetry: Dash callback slow: 1930.6 ms (buf=30081, overlays=['Lap 47', 'Personal Best (PB)'], points=13625)
+2025-12-24 13:49:45.739 WARNING [Thread-939] telemetry: Dash callback slow: 2876.1 ms (buf=30081, overlays=['Lap 47', 'Personal Best (PB)'], points=13625)
+2025-12-24 13:49:46.032 WARNING [Thread-943] telemetry: Dash callback slow: 2161.3 ms (buf=30087, overlays=['Lap 47', 'Personal Best (PB)'], points=13629)
+2025-12-24 13:49:47.225 WARNING [Thread-945] telemetry: Dash callback slow: 2554.5 ms (buf=30090, overlays=['Lap 47', 'Personal Best (PB)'], points=13631)
+2025-12-24 13:49:47.283 WARNING [Thread-948] telemetry: Dash callback slow: 1827.3 ms (buf=30096, overlays=['Lap 47', 'Personal Best (PB)'], points=13635)
+2025-12-24 13:49:48.131 INFO [Thread-1] telemetry: PPS=38.8 (packets count=10127)
+2025-12-24 13:49:48.539 WARNING [Thread-950] telemetry: Dash callback slow: 1840.3 ms (buf=30108, overlays=['Lap 47', 'Personal Best (PB)'], points=13643)
+2025-12-24 13:49:48.831 WARNING [Thread-952] telemetry: Dash callback slow: 1843.3 ms (buf=30111, overlays=['Lap 47', 'Personal Best (PB)'], points=13645)
+2025-12-24 13:49:50.272 WARNING [Thread-956] telemetry: Dash callback slow: 2670.7 ms (buf=30396, overlays=['Lap 48', 'Personal Best (PB)'], points=10137)
+2025-12-24 13:49:50.405 WARNING [Thread-954] telemetry: Dash callback slow: 3035.7 ms (buf=30396, overlays=['Lap 48', 'Personal Best (PB)'], points=10137)
+2025-12-24 13:49:50.505 WARNING [Thread-959] telemetry: Dash callback slow: 2793.1 ms (buf=30396, overlays=['Lap 48', 'Personal Best (PB)'], points=10137)
+2025-12-24 13:49:50.939 WARNING [Thread-961] telemetry: Dash callback slow: 2815.8 ms (buf=30396, overlays=['Lap 48', 'Personal Best (PB)'], points=10137)
+2025-12-24 13:49:51.538 WARNING [Thread-963] telemetry: Dash callback slow: 2765.8 ms (buf=30396, overlays=['Lap 48', 'Personal Best (PB)'], points=10137)
+2025-12-24 13:51:01.240 INFO [Thread-1] telemetry: SO_RCVBUF set to 1MiB
+2025-12-24 13:51:01.241 INFO [Thread-1] telemetry: UDP bind OK on 0.0.0.0:20777
+2025-12-24 13:51:21.719 INFO [Thread-1] telemetry: PPS=0.0 (packets count=1)
+2025-12-24 13:51:26.735 INFO [Thread-1] telemetry: PPS=11.8 (packets count=301)
+2025-12-24 13:51:27.280 DEBUG [Thread-1] telemetry: append_point: seq=1000 len=1000 last_wall=1766602287.280 lap=48 t_ms=0.0
+2025-12-24 13:51:31.753 INFO [Thread-1] telemetry: PPS=19.7 (packets count=602)
+2025-12-24 13:51:32.835 DEBUG [Thread-1] telemetry: append_point: seq=2000 len=2000 last_wall=1766602292.835 lap=2 t_ms=0.0
+2025-12-24 13:51:36.762 INFO [Thread-1] telemetry: PPS=25.4 (packets count=902)
+2025-12-24 13:51:38.402 DEBUG [Thread-1] telemetry: append_point: seq=3000 len=3000 last_wall=1766602298.402 lap=2 t_ms=0.0
+2025-12-24 13:51:41.766 INFO [Thread-1] telemetry: PPS=29.7 (packets count=1202)
+2025-12-24 13:51:44.052 DEBUG [Thread-1] telemetry: append_point: seq=4000 len=4000 last_wall=1766602304.053 lap=48 t_ms=4153.0
+2025-12-24 13:51:46.767 INFO [Thread-1] telemetry: PPS=33.0 (packets count=1502)
+2025-12-24 13:51:49.519 DEBUG [Thread-1] telemetry: append_point: seq=5000 len=5000 last_wall=1766602309.520 lap=2 t_ms=9709.0
+2025-12-24 13:51:51.834 INFO [Thread-1] telemetry: PPS=35.6 (packets count=1802)
+2025-12-24 13:51:55.084 DEBUG [Thread-1] telemetry: append_point: seq=6000 len=6000 last_wall=1766602315.084 lap=2 t_ms=15264.0
+2025-12-24 13:51:56.852 INFO [Thread-1] telemetry: PPS=37.9 (packets count=2106)
+2025-12-24 13:52:00.651 DEBUG [Thread-1] telemetry: append_point: seq=7000 len=7000 last_wall=1766602320.652 lap=48 t_ms=20833.0
+2025-12-24 13:52:01.866 INFO [Thread-1] telemetry: PPS=39.7 (packets count=2407)
+2025-12-24 13:52:06.203 DEBUG [Thread-1] telemetry: append_point: seq=8000 len=8000 last_wall=1766602326.203 lap=2 t_ms=26388.0
+2025-12-24 13:52:06.899 INFO [Thread-1] telemetry: PPS=41.2 (packets count=2705)
+2025-12-24 13:52:11.764 DEBUG [Thread-1] telemetry: append_point: seq=9000 len=9000 last_wall=1766602331.764 lap=2 t_ms=31944.0
+2025-12-24 13:52:11.903 INFO [Thread-1] telemetry: PPS=42.6 (packets count=3008)
+2025-12-24 13:52:16.917 INFO [Thread-1] telemetry: PPS=43.7 (packets count=3309)
+2025-12-24 13:52:17.333 DEBUG [Thread-1] telemetry: append_point: seq=10000 len=10000 last_wall=1766602337.334 lap=48 t_ms=37516.0
+2025-12-24 13:52:21.918 INFO [Thread-1] telemetry: PPS=44.6 (packets count=3601)
+2025-12-24 13:52:22.884 DEBUG [Thread-1] telemetry: append_point: seq=11000 len=11000 last_wall=1766602342.885 lap=2 t_ms=43072.0
+2025-12-24 13:52:26.920 INFO [Thread-1] telemetry: PPS=45.6 (packets count=3909)
+2025-12-24 13:52:28.541 DEBUG [Thread-1] telemetry: append_point: seq=12000 len=12000 last_wall=1766602348.541 lap=2 t_ms=48620.0
+2025-12-24 13:52:31.954 INFO [Thread-1] telemetry: PPS=46.4 (packets count=4209)
+2025-12-24 13:52:34.016 DEBUG [Thread-1] telemetry: append_point: seq=13000 len=13000 last_wall=1766602354.016 lap=48 t_ms=54192.0
+2025-12-24 13:52:36.965 INFO [Thread-1] telemetry: PPS=47.0 (packets count=4502)
+2025-12-24 13:52:39.579 DEBUG [Thread-1] telemetry: append_point: seq=14000 len=14000 last_wall=1766602359.580 lap=2 t_ms=59748.0
+2025-12-24 13:52:41.972 INFO [Thread-1] telemetry: PPS=47.8 (packets count=4811)
+2025-12-24 13:52:45.146 DEBUG [Thread-1] telemetry: append_point: seq=15000 len=15000 last_wall=1766602365.146 lap=2 t_ms=65303.0
+2025-12-24 13:52:47.016 INFO [Thread-1] telemetry: PPS=48.3 (packets count=5111)
+2025-12-24 13:52:50.802 DEBUG [Thread-1] telemetry: append_point: seq=16000 len=16000 last_wall=1766602370.802 lap=48 t_ms=70877.0
+2025-12-24 13:52:52.018 INFO [Thread-1] telemetry: PPS=48.9 (packets count=5413)
+2025-12-24 13:52:56.250 DEBUG [Thread-1] telemetry: append_point: seq=17000 len=17000 last_wall=1766602376.251 lap=2 t_ms=3336.0
+2025-12-24 13:52:57.047 INFO [Thread-1] telemetry: PPS=49.3 (packets count=5714)
+2025-12-24 13:53:01.817 DEBUG [Thread-1] telemetry: append_point: seq=18000 len=18000 last_wall=1766602381.817 lap=2 t_ms=8891.0
+2025-12-24 13:53:02.050 INFO [Thread-1] telemetry: PPS=49.8 (packets count=6011)
+2025-12-24 13:53:07.066 INFO [Thread-1] telemetry: PPS=50.2 (packets count=6315)
+2025-12-24 13:53:07.465 DEBUG [Thread-1] telemetry: append_point: seq=19000 len=19000 last_wall=1766602387.466 lap=49 t_ms=14463.0
+2025-12-24 13:53:12.082 INFO [Thread-1] telemetry: PPS=50.6 (packets count=6616)
+2025-12-24 13:53:12.945 DEBUG [Thread-1] telemetry: append_point: seq=20000 len=20000 last_wall=1766602392.946 lap=2 t_ms=20019.0
+2025-12-24 13:53:17.108 INFO [Thread-1] telemetry: PPS=50.9 (packets count=6916)
+2025-12-24 13:53:18.499 DEBUG [Thread-1] telemetry: append_point: seq=21000 len=21000 last_wall=1766602398.499 lap=2 t_ms=25577.0
+2025-12-24 13:53:22.125 INFO [Thread-1] telemetry: PPS=51.2 (packets count=7217)
+2025-12-24 13:53:24.066 DEBUG [Thread-1] telemetry: append_point: seq=22000 len=22000 last_wall=1766602404.067 lap=49 t_ms=31149.0
+2025-12-24 13:53:27.154 INFO [Thread-1] telemetry: PPS=51.5 (packets count=7518)
+2025-12-24 13:53:29.704 DEBUG [Thread-1] telemetry: append_point: seq=23000 len=23000 last_wall=1766602409.704 lap=2 t_ms=36704.0
+2025-12-24 13:53:32.162 INFO [Thread-1] telemetry: PPS=51.8 (packets count=7819)
+2025-12-24 13:53:35.181 DEBUG [Thread-1] telemetry: append_point: seq=24000 len=24000 last_wall=1766602415.181 lap=2 t_ms=42259.0
+2025-12-24 13:53:37.172 INFO [Thread-1] telemetry: PPS=52.1 (packets count=8120)
+2025-12-24 13:53:40.745 DEBUG [Thread-1] telemetry: append_point: seq=25000 len=25000 last_wall=1766602420.746 lap=49 t_ms=47837.0
+2025-12-24 13:53:42.260 INFO [Thread-1] telemetry: PPS=52.3 (packets count=8420)
+2025-12-24 13:53:46.299 DEBUG [Thread-1] telemetry: append_point: seq=26000 len=26000 last_wall=1766602426.299 lap=2 t_ms=53392.0
+2025-12-24 13:53:47.261 INFO [Thread-1] telemetry: PPS=52.5 (packets count=8724)
+2025-12-24 13:53:51.963 DEBUG [Thread-1] telemetry: append_point: seq=27000 len=27000 last_wall=1766602431.964 lap=2 t_ms=58948.0
+2025-12-24 13:53:52.283 INFO [Thread-1] telemetry: PPS=52.8 (packets count=9025)
+2025-12-24 13:53:57.397 INFO [Thread-1] telemetry: PPS=52.9 (packets count=9321)
+2025-12-24 13:53:57.431 DEBUG [Thread-1] telemetry: append_point: seq=28000 len=28000 last_wall=1766602437.431 lap=49 t_ms=64520.0
+2025-12-24 13:54:02.408 INFO [Thread-1] telemetry: PPS=53.2 (packets count=9632)
+2025-12-24 13:54:02.985 DEBUG [Thread-1] telemetry: append_point: seq=29000 len=29000 last_wall=1766602442.985 lap=2 t_ms=70076.0
+2025-12-24 13:54:07.445 INFO [Thread-1] telemetry: PPS=53.3 (packets count=9930)
+2025-12-24 13:54:08.552 DEBUG [Thread-1] telemetry: append_point: seq=30000 len=30000 last_wall=1766602448.552 lap=2 t_ms=2702.0
+2025-12-24 13:54:12.464 INFO [Thread-1] telemetry: PPS=53.5 (packets count=10235)
+2025-12-24 13:54:14.111 DEBUG [Thread-1] telemetry: append_point: seq=31000 len=31000 last_wall=1766602454.111 lap=50 t_ms=8274.0
+2025-12-24 13:54:17.482 INFO [Thread-1] telemetry: PPS=53.7 (packets count=10536)
+2025-12-24 13:54:19.667 DEBUG [Thread-1] telemetry: append_point: seq=32000 len=32000 last_wall=1766602459.667 lap=2 t_ms=13830.0
+2025-12-24 13:54:22.497 INFO [Thread-1] telemetry: PPS=53.8 (packets count=10836)
+2025-12-24 13:54:25.231 DEBUG [Thread-1] telemetry: append_point: seq=33000 len=33000 last_wall=1766602465.231 lap=2 t_ms=19385.0
+2025-12-24 13:54:27.512 INFO [Thread-1] telemetry: PPS=54.0 (packets count=11136)
+2025-12-24 13:54:30.896 DEBUG [Thread-1] telemetry: append_point: seq=34000 len=34000 last_wall=1766602470.896 lap=50 t_ms=24972.0
+2025-12-24 13:54:32.515 INFO [Thread-1] telemetry: PPS=54.1 (packets count=11436)
+2025-12-24 13:54:36.377 DEBUG [Thread-1] telemetry: append_point: seq=35000 len=35000 last_wall=1766602476.377 lap=2 t_ms=30527.0
+2025-12-24 13:54:37.557 INFO [Thread-1] telemetry: PPS=54.2 (packets count=11729)
+2025-12-24 13:54:41.921 DEBUG [Thread-1] telemetry: append_point: seq=36000 len=36000 last_wall=1766602481.921 lap=2 t_ms=36083.0
+2025-12-24 13:54:42.571 INFO [Thread-1] telemetry: PPS=54.4 (packets count=12039)
+2025-12-24 13:54:47.494 DEBUG [Thread-1] telemetry: append_point: seq=37000 len=37000 last_wall=1766602487.495 lap=50 t_ms=41655.0
+2025-12-24 13:54:47.648 INFO [Thread-1] telemetry: PPS=54.5 (packets count=12339)
+2025-12-24 13:54:52.649 INFO [Thread-1] telemetry: PPS=54.6 (packets count=12643)
+2025-12-24 13:54:53.157 DEBUG [Thread-1] telemetry: append_point: seq=38000 len=38000 last_wall=1766602493.158 lap=2 t_ms=47212.0
+2025-12-24 13:54:57.650 INFO [Thread-1] telemetry: PPS=54.7 (packets count=12942)
+2025-12-24 13:54:58.615 DEBUG [Thread-1] telemetry: append_point: seq=39000 len=39000 last_wall=1766602498.616 lap=2 t_ms=52768.0
+2025-12-24 13:55:02.681 INFO [Thread-1] telemetry: PPS=54.8 (packets count=13237)
+2025-12-24 13:55:04.174 DEBUG [Thread-1] telemetry: append_point: seq=40000 len=40000 last_wall=1766602504.174 lap=50 t_ms=58340.0
+2025-12-24 13:55:07.681 INFO [Thread-1] telemetry: PPS=55.0 (packets count=13544)
+2025-12-24 13:55:09.737 DEBUG [Thread-1] telemetry: append_point: seq=41000 len=41000 last_wall=1766602509.738 lap=2 t_ms=63895.0
+2025-12-24 13:55:12.690 INFO [Thread-1] telemetry: PPS=55.1 (packets count=13843)
+2025-12-24 13:55:15.448 DEBUG [Thread-1] telemetry: append_point: seq=42000 len=42000 last_wall=1766602515.449 lap=2 t_ms=69451.0
+2025-12-24 13:55:17.695 INFO [Thread-1] telemetry: PPS=55.1 (packets count=14137)
+2025-12-24 13:55:20.863 DEBUG [Thread-1] telemetry: append_point: seq=43000 len=43000 last_wall=1766602520.863 lap=51 t_ms=2768.0
+2025-12-24 13:56:10.334 WARNING [Thread-1140] telemetry: Dash callback slow: 678.3 ms (buf=43173, overlays=['Lap 51', 'Lap 49', 'Personal Best (PB)', 'Lap 51'], points=5040)
+2025-12-24 13:56:10.848 WARNING [Thread-1142] telemetry: Dash callback slow: 985.5 ms (buf=43173, overlays=['Lap 51', 'Lap 49', 'Personal Best (PB)', 'Lap 51'], points=5040)
+2025-12-24 13:56:27.530 WARNING [Thread-1206] telemetry: Dash callback slow: 667.2 ms (buf=43173, overlays=['Lap 51', 'Lap 49', 'Lap 51', 'Lap 50'], points=9149)
+2025-12-24 13:56:27.880 WARNING [Thread-1208] telemetry: Dash callback slow: 638.9 ms (buf=43173, overlays=['Lap 51', 'Lap 49', 'Lap 51', 'Lap 50'], points=9149)
+2025-12-24 13:56:34.877 WARNING [Thread-1231] telemetry: Dash callback slow: 695.0 ms (buf=43173, overlays=['Lap 51', 'Lap 49', 'Lap 51'], points=4819)
+2025-12-24 13:56:34.895 WARNING [Thread-1233] telemetry: Dash callback slow: 614.2 ms (buf=43173, overlays=['Lap 51', 'Lap 49', 'Lap 51'], points=4819)
+2025-12-24 13:56:35.138 WARNING [Thread-1235] telemetry: Dash callback slow: 511.3 ms (buf=43173, overlays=['Lap 51', 'Lap 49', 'Lap 51'], points=4819)
+2025-12-24 13:59:29.895 INFO [Thread-1] telemetry: SO_RCVBUF set to 1MiB
+2025-12-24 13:59:29.895 INFO [Thread-1] telemetry: UDP bind OK on 0.0.0.0:20777
+2025-12-24 13:59:40.076 INFO [Thread-1] telemetry: PPS=0.1 (packets count=1)
+2025-12-24 14:00:11.826 INFO [Thread-1] telemetry: PPS=4.9 (packets count=205)
+2025-12-24 14:00:13.993 DEBUG [Thread-1] telemetry: append_point: seq=1000 len=1000 last_wall=1766602813.994 lap=51 t_ms=0.0
+2025-12-24 14:00:16.840 INFO [Thread-1] telemetry: PPS=10.7 (packets count=504)
+2025-12-24 14:00:19.553 DEBUG [Thread-1] telemetry: append_point: seq=2000 len=2000 last_wall=1766602819.554 lap=2 t_ms=0.0
+2025-12-24 14:00:21.875 INFO [Thread-1] telemetry: PPS=15.4 (packets count=803)
+2025-12-24 14:00:25.103 DEBUG [Thread-1] telemetry: append_point: seq=3000 len=3000 last_wall=1766602825.104 lap=2 t_ms=0.0
+2025-12-24 14:00:26.890 INFO [Thread-1] telemetry: PPS=19.4 (packets count=1107)
+2025-12-24 14:00:30.690 DEBUG [Thread-1] telemetry: append_point: seq=4000 len=4000 last_wall=1766602830.690 lap=51 t_ms=433.0
+2025-12-24 14:00:31.890 INFO [Thread-1] telemetry: PPS=22.7 (packets count=1406)
+2025-12-24 14:00:36.338 DEBUG [Thread-1] telemetry: append_point: seq=5000 len=5000 last_wall=1766602836.339 lap=2 t_ms=5989.0
+2025-12-24 14:00:36.983 INFO [Thread-1] telemetry: PPS=25.4 (packets count=1703)
+2025-12-24 14:00:41.800 DEBUG [Thread-1] telemetry: append_point: seq=6000 len=6000 last_wall=1766602841.801 lap=2 t_ms=11544.0
+2025-12-24 14:00:41.990 INFO [Thread-1] telemetry: PPS=27.9 (packets count=2012)
+2025-12-24 14:00:46.997 INFO [Thread-1] telemetry: PPS=30.0 (packets count=2312)
+2025-12-24 14:00:47.364 DEBUG [Thread-1] telemetry: append_point: seq=7000 len=7000 last_wall=1766602847.365 lap=51 t_ms=17116.0
+2025-12-24 14:00:52.010 INFO [Thread-1] telemetry: PPS=31.7 (packets count=2602)
+2025-12-24 14:00:52.925 DEBUG [Thread-1] telemetry: append_point: seq=8000 len=8000 last_wall=1766602852.926 lap=2 t_ms=22657.0
+2025-12-24 14:00:57.032 INFO [Thread-1] telemetry: PPS=33.4 (packets count=2913)
+2025-12-24 14:00:58.620 DEBUG [Thread-1] telemetry: append_point: seq=9000 len=9000 last_wall=1766602858.620 lap=2 t_ms=28212.0
+2025-12-24 14:01:02.040 INFO [Thread-1] telemetry: PPS=34.9 (packets count=3212)
+2025-12-24 14:01:04.212 DEBUG [Thread-1] telemetry: append_point: seq=10000 len=10000 last_wall=1766602864.212 lap=51 t_ms=33784.0
+2025-12-24 14:01:07.053 INFO [Thread-1] telemetry: PPS=36.1 (packets count=3509)
+2025-12-24 14:01:08.510 WARNING [Thread-368] telemetry: Dash callback slow: 401.7 ms (buf=10740, overlays=['Lap 51', 'Personal Best (PB)'], points=5618)
+2025-12-24 14:01:09.599 DEBUG [Thread-1] telemetry: append_point: seq=11000 len=11000 last_wall=1766602869.599 lap=2 t_ms=39339.0
+2025-12-24 14:01:12.109 INFO [Thread-1] telemetry: PPS=37.3 (packets count=3815)
+2025-12-24 14:01:15.166 DEBUG [Thread-1] telemetry: append_point: seq=12000 len=12000 last_wall=1766602875.166 lap=2 t_ms=44909.0
+2025-12-24 14:01:17.153 INFO [Thread-1] telemetry: PPS=38.3 (packets count=4113)
+2025-12-24 14:01:21.023 DEBUG [Thread-1] telemetry: append_point: seq=13000 len=13000 last_wall=1766602881.023 lap=51 t_ms=50481.0
+2025-12-24 14:01:22.174 INFO [Thread-1] telemetry: PPS=39.2 (packets count=4404)
+2025-12-24 14:01:25.565 WARNING [Thread-429] telemetry: Dash callback slow: 464.2 ms (buf=13791, overlays=['Lap 51', 'Personal Best (PB)'], points=7652)
+2025-12-24 14:01:25.958 WARNING [Thread-431] telemetry: Dash callback slow: 487.6 ms (buf=13803, overlays=['Lap 51', 'Personal Best (PB)'], points=7660)
+2025-12-24 14:01:26.434 DEBUG [Thread-1] telemetry: append_point: seq=14000 len=14000 last_wall=1766602886.434 lap=2 t_ms=56037.0
+2025-12-24 14:01:27.222 INFO [Thread-1] telemetry: PPS=40.1 (packets count=4706)
+2025-12-24 14:01:30.284 WARNING [Thread-447] telemetry: Dash callback slow: 460.1 ms (buf=14640, overlays=['Lap 51', 'Personal Best (PB)'], points=8218)
+2025-12-24 14:01:30.707 WARNING [Thread-449] telemetry: Dash callback slow: 431.5 ms (buf=14655, overlays=['Lap 51', 'Personal Best (PB)'], points=8228)
+2025-12-24 14:01:31.988 DEBUG [Thread-1] telemetry: append_point: seq=15000 len=15000 last_wall=1766602891.988 lap=2 t_ms=61592.0
+2025-12-24 14:01:32.254 INFO [Thread-1] telemetry: PPS=40.9 (packets count=5003)
+2025-12-24 14:01:33.761 WARNING [Thread-460] telemetry: Dash callback slow: 473.3 ms (buf=15222, overlays=['Lap 51', 'Personal Best (PB)'], points=8606)
+2025-12-24 14:01:34.240 WARNING [Thread-462] telemetry: Dash callback slow: 402.3 ms (buf=15375, overlays=['Lap 51', 'Personal Best (PB)'], points=8708)
+2025-12-24 14:01:36.095 WARNING [Thread-469] telemetry: Dash callback slow: 406.8 ms (buf=15642, overlays=['Lap 51', 'Personal Best (PB)'], points=8886)
+2025-12-24 14:01:37.255 INFO [Thread-1] telemetry: PPS=41.8 (packets count=5319)
+2025-12-24 14:01:37.574 WARNING [Thread-473] telemetry: Dash callback slow: 463.3 ms (buf=15954, overlays=['Lap 51', 'Personal Best (PB)'], points=9094)
+2025-12-24 14:01:37.872 DEBUG [Thread-1] telemetry: append_point: seq=16000 len=16000 last_wall=1766602897.872 lap=51 t_ms=67167.0
+2025-12-24 14:01:38.013 WARNING [Thread-475] telemetry: Dash callback slow: 509.1 ms (buf=15990, overlays=['Lap 51', 'Personal Best (PB)'], points=9118)
+2025-12-24 14:01:38.505 WARNING [Thread-478] telemetry: Dash callback slow: 469.7 ms (buf=16011, overlays=['Lap 51', 'Personal Best (PB)'], points=9132)
+2025-12-24 14:01:40.226 WARNING [Thread-482] telemetry: Dash callback slow: 642.3 ms (buf=16395, overlays=['Lap 51', 'Personal Best (PB)'], points=9388)
+2025-12-24 14:01:40.520 WARNING [Thread-484] telemetry: Dash callback slow: 663.1 ms (buf=16428, overlays=['Lap 51', 'Personal Best (PB)'], points=9410)
+2025-12-24 14:01:40.974 WARNING [Thread-486] telemetry: Dash callback slow: 453.2 ms (buf=16458, overlays=['Lap 51', 'Personal Best (PB)'], points=9430)
+2025-12-24 14:01:42.556 INFO [Thread-1] telemetry: PPS=42.4 (packets count=5620)
+2025-12-24 14:01:42.640 WARNING [Thread-491] telemetry: Dash callback slow: 607.1 ms (buf=16836, overlays=['Lap 51', 'Personal Best (PB)'], points=9682)
+2025-12-24 14:01:43.090 WARNING [Thread-493] telemetry: Dash callback slow: 798.4 ms (buf=16857, overlays=['Lap 51', 'Personal Best (PB)'], points=9696)
+2025-12-24 14:01:43.507 WARNING [Thread-495] telemetry: Dash callback slow: 591.8 ms (buf=16893, overlays=['Lap 51', 'Personal Best (PB)'], points=9720)
+2025-12-24 14:01:43.723 DEBUG [Thread-1] telemetry: append_point: seq=17000 len=17000 last_wall=1766602903.724 lap=2 t_ms=283.0
+2025-12-24 14:06:10.194 INFO [Thread-1] telemetry: SO_RCVBUF set to 1MiB
+2025-12-24 14:06:10.194 INFO [Thread-1] telemetry: UDP bind OK on 0.0.0.0:20777
+2025-12-24 14:06:22.095 INFO [Thread-1] telemetry: PPS=0.1 (packets count=1)
+2025-12-24 14:06:27.117 INFO [Thread-1] telemetry: PPS=15.3 (packets count=259)
+2025-12-24 14:06:28.347 DEBUG [Thread-1] telemetry: append_point: seq=1000 len=1000 last_wall=1766603188.347 lap=52 t_ms=0.0
+2025-12-24 14:06:49.729 INFO [Thread-1] telemetry: PPS=14.1 (packets count=557)
+2025-12-24 14:06:51.626 DEBUG [Thread-1] telemetry: append_point: seq=2000 len=2000 last_wall=1766603211.626 lap=2 t_ms=0.0
+2025-12-24 14:06:54.734 INFO [Thread-1] telemetry: PPS=19.2 (packets count=856)
+2025-12-24 14:06:57.150 DEBUG [Thread-1] telemetry: append_point: seq=3000 len=3000 last_wall=1766603217.151 lap=2 t_ms=0.0
+2025-12-24 14:06:59.749 INFO [Thread-1] telemetry: PPS=23.3 (packets count=1156)
+2025-12-24 14:07:02.715 DEBUG [Thread-1] telemetry: append_point: seq=4000 len=4000 last_wall=1766603222.715 lap=52 t_ms=1885.0
+2025-12-24 14:07:04.764 INFO [Thread-1] telemetry: PPS=26.6 (packets count=1453)
+2025-12-24 14:07:08.267 DEBUG [Thread-1] telemetry: append_point: seq=5000 len=5000 last_wall=1766603228.268 lap=2 t_ms=7440.0
+2025-12-24 14:07:09.779 INFO [Thread-1] telemetry: PPS=29.5 (packets count=1757)
+2025-12-24 14:07:13.829 DEBUG [Thread-1] telemetry: append_point: seq=6000 len=6000 last_wall=1766603233.829 lap=2 t_ms=12996.0
+2025-12-24 14:07:14.798 INFO [Thread-1] telemetry: PPS=31.9 (packets count=2058)
+2025-12-24 14:07:19.397 DEBUG [Thread-1] telemetry: append_point: seq=7000 len=7000 last_wall=1766603239.398 lap=52 t_ms=18568.0
+2025-12-24 14:07:19.813 INFO [Thread-1] telemetry: PPS=33.9 (packets count=2359)
+2025-12-24 14:07:24.814 INFO [Thread-1] telemetry: PPS=35.6 (packets count=2659)
+2025-12-24 14:07:24.949 DEBUG [Thread-1] telemetry: append_point: seq=8000 len=8000 last_wall=1766603244.949 lap=2 t_ms=24117.0
+2025-12-24 14:08:10.766 INFO [Thread-1] telemetry: SO_RCVBUF set to 1MiB
+2025-12-24 14:08:10.766 INFO [Thread-1] telemetry: UDP bind OK on 0.0.0.0:20777
+2025-12-24 14:08:15.779 INFO [Thread-1] telemetry: PPS=27.9 (packets count=140)
+2025-12-24 14:08:19.033 DEBUG [Thread-1] telemetry: append_point: seq=1000 len=1000 last_wall=1766603299.033 lap=52 t_ms=32825.0
+2025-12-24 14:08:20.833 INFO [Thread-1] telemetry: PPS=43.5 (packets count=438)
