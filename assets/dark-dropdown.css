@@ -1,0 +1,79 @@
+/* assets/dark-dropdown.css */
+
+/* Anciennes classes Dash / react-select v1 */
+.Select-control {
+    background-color: #222 !important;
+    color: #EEE !important;
+    border-color: #444 !important;
+}
+
+.Select-placeholder,
+.Select--single>.Select-control .Select-value {
+    color: #DDD !important;
+}
+
+.Select-menu-outer {
+    background-color: #222 !important;
+    /* <-- menu (ancien) */
+    border-color: #444 !important;
+    color: #EEE !important;
+}
+
+.Select-option {
+    background-color: #222 !important;
+    color: #EEE !important;
+}
+
+.Select-option.is-focused,
+.Select-option.is-selected {
+    background-color: #333 !important;
+    color: #FFF !important;
+}
+
+/* Nouvelles classes react-select v2/v3 */
+.Select__control {
+    background-color: #222 !important;
+    color: #EEE !important;
+    border-color: #444 !important;
+}
+
+.Select__placeholder,
+.Select__single-value {
+    color: #DDD !important;
+}
+
+.Select__menu {
+    background-color: #222 !important;
+    /* <-- menu (nouveau) */
+    color: #EEE !important;
+    border: 1px solid #444 !important;
+}
+
+.Select__menu-list {
+    background-color: #222 !important;
+}
+
+.Select__option {
+    background-color: #222 !important;
+    color: #EEE !important;
+}
+
+.Select__option--is-focused,
+.Select__option--is-selected {
+    background-color: #333 !important;
+    color: #FFF !important;
+}
+
+/* Multi-value chips lisibles en thème sombre */
+.Select__multi-value {
+    background-color: #333 !important;
+    border: 1px solid #555 !important;
+}
+
+.Select__multi-value__label {
+    color: #EEE !important;
+}
+
+.Select__multi-value__remove {
+    color: #FFF !important;
+}

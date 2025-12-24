@@ -814,3 +814,94 @@
 2025-12-24 13:00:20.929 WARNING [Thread-1873] telemetry: Dash callback slow: 863.5 ms (buf=18006, laps=[43, 41, 42], points=11792)
 2025-12-24 13:00:20.932 WARNING [Thread-1871] telemetry: Dash callback slow: 970.7 ms (buf=18006, laps=[43, 41, 42], points=11792)
 2025-12-24 13:00:21.652 WARNING [Thread-1875] telemetry: Dash callback slow: 1021.0 ms (buf=18006, laps=[43, 41, 42], points=11792)
+2025-12-24 13:04:54.532 INFO [Thread-1] telemetry: SO_RCVBUF set to 1MiB
+2025-12-24 13:04:54.532 INFO [Thread-1] telemetry: UDP bind OK on 0.0.0.0:20777
+2025-12-24 13:05:14.894 INFO [Thread-1] telemetry: PPS=0.0 (packets count=1)
+2025-12-24 13:05:19.906 INFO [Thread-1] telemetry: PPS=8.1 (packets count=205)
+2025-12-24 13:05:24.925 INFO [Thread-1] telemetry: PPS=16.6 (packets count=506)
+2025-12-24 13:05:29.936 INFO [Thread-1] telemetry: PPS=22.8 (packets count=806)
+2025-12-24 13:05:33.158 DEBUG [Thread-1] telemetry: append_point: seq=1000 len=1000 last_wall=1766599533.158 lap=43 t_ms=0.0
+2025-12-24 13:05:34.939 INFO [Thread-1] telemetry: PPS=27.4 (packets count=1106)
+2025-12-24 13:05:40.023 INFO [Thread-1] telemetry: PPS=30.9 (packets count=1407)
+2025-12-24 13:05:45.023 INFO [Thread-1] telemetry: PPS=33.9 (packets count=1711)
+2025-12-24 13:05:57.257 INFO [Thread-1] telemetry: PPS=31.0 (packets count=1942)
+2025-12-24 13:05:58.242 DEBUG [Thread-1] telemetry: append_point: seq=2000 len=2000 last_wall=1766599558.243 lap=43 t_ms=14163.0
+2025-12-24 13:06:02.283 INFO [Thread-1] telemetry: PPS=33.0 (packets count=2235)
+2025-12-24 13:06:07.309 INFO [Thread-1] telemetry: PPS=34.9 (packets count=2543)
+2025-12-24 13:06:12.315 INFO [Thread-1] telemetry: PPS=36.6 (packets count=2843)
+2025-12-24 13:06:14.921 DEBUG [Thread-1] telemetry: append_point: seq=3000 len=3000 last_wall=1766599574.922 lap=43 t_ms=30847.0
+2025-12-24 13:06:17.324 INFO [Thread-1] telemetry: PPS=38.0 (packets count=3144)
+2025-12-24 13:06:22.324 INFO [Thread-1] telemetry: PPS=39.2 (packets count=3444)
+2025-12-24 13:06:27.333 INFO [Thread-1] telemetry: PPS=40.3 (packets count=3743)
+2025-12-24 13:06:31.710 DEBUG [Thread-1] telemetry: append_point: seq=4000 len=4000 last_wall=1766599591.711 lap=43 t_ms=47517.0
+2025-12-24 13:06:32.339 INFO [Thread-1] telemetry: PPS=41.3 (packets count=4044)
+2025-12-24 13:06:37.342 INFO [Thread-1] telemetry: PPS=42.3 (packets count=4344)
+2025-12-24 13:06:42.420 INFO [Thread-1] telemetry: PPS=43.0 (packets count=4644)
+2025-12-24 13:06:47.431 INFO [Thread-1] telemetry: PPS=43.8 (packets count=4948)
+2025-12-24 13:06:48.290 DEBUG [Thread-1] telemetry: append_point: seq=5000 len=5000 last_wall=1766599608.290 lap=43 t_ms=64203.0
+2025-12-24 13:06:52.435 INFO [Thread-1] telemetry: PPS=44.5 (packets count=5249)
+2025-12-24 13:06:57.436 INFO [Thread-1] telemetry: PPS=45.1 (packets count=5543)
+2025-12-24 13:07:02.438 INFO [Thread-1] telemetry: PPS=45.7 (packets count=5848)
+2025-12-24 13:07:04.988 DEBUG [Thread-1] telemetry: append_point: seq=6000 len=6000 last_wall=1766599624.989 lap=43 t_ms=80889.0
+2025-12-24 13:07:07.452 INFO [Thread-1] telemetry: PPS=46.3 (packets count=6149)
+2025-12-24 13:07:12.456 INFO [Thread-1] telemetry: PPS=46.8 (packets count=6449)
+2025-12-24 13:07:17.470 INFO [Thread-1] telemetry: PPS=47.2 (packets count=6749)
+2025-12-24 13:08:02.378 INFO [Thread-1] telemetry: PPS=36.9 (packets count=6939)
+2025-12-24 13:08:03.417 DEBUG [Thread-1] telemetry: append_point: seq=7000 len=7000 last_wall=1766599683.417 lap=44 t_ms=8458.0
+2025-12-24 13:08:03.888 WARNING [Thread-808] telemetry: Dash callback slow: 402.5 ms (buf=7007, laps=[44, 43], points=5855)
+2025-12-24 13:08:07.406 INFO [Thread-1] telemetry: PPS=37.5 (packets count=7231)
+2025-12-24 13:08:08.058 WARNING [Thread-824] telemetry: Dash callback slow: 432.1 ms (buf=7255, laps=[44, 43], points=6103)
+2025-12-24 13:08:12.471 INFO [Thread-1] telemetry: PPS=38.1 (packets count=7539)
+2025-12-24 13:08:16.465 WARNING [Thread-855] telemetry: Dash callback slow: 427.3 ms (buf=7760, laps=[44, 43], points=6608)
+2025-12-24 13:08:17.504 INFO [Thread-1] telemetry: PPS=38.6 (packets count=7835)
+2025-12-24 13:08:20.107 DEBUG [Thread-1] telemetry: append_point: seq=8000 len=8000 last_wall=1766599700.107 lap=44 t_ms=25141.0
+2025-12-24 13:08:21.333 WARNING [Thread-872] telemetry: Dash callback slow: 441.8 ms (buf=8053, laps=[44, 43], points=6901)
+2025-12-24 13:08:22.534 INFO [Thread-1] telemetry: PPS=39.1 (packets count=8129)
+2025-12-24 13:12:08.960 INFO [Thread-1] telemetry: SO_RCVBUF set to 1MiB
+2025-12-24 13:12:08.961 INFO [Thread-1] telemetry: UDP bind OK on 0.0.0.0:20777
+2025-12-24 13:12:19.415 INFO [Thread-1] telemetry: PPS=0.1 (packets count=1)
+2025-12-24 13:12:24.431 INFO [Thread-1] telemetry: PPS=19.5 (packets count=301)
+2025-12-24 13:12:29.447 INFO [Thread-1] telemetry: PPS=29.3 (packets count=601)
+2025-12-24 13:12:34.532 INFO [Thread-1] telemetry: PPS=35.1 (packets count=897)
+2025-12-24 13:12:36.098 DEBUG [Thread-1] telemetry: append_point: seq=1000 len=1000 last_wall=1766599956.098 lap=44 t_ms=46345.0
+2025-12-24 13:12:39.551 INFO [Thread-1] telemetry: PPS=39.5 (packets count=1207)
+2025-12-24 13:12:44.554 INFO [Thread-1] telemetry: PPS=42.3 (packets count=1507)
+2025-12-24 13:12:49.562 INFO [Thread-1] telemetry: PPS=44.5 (packets count=1807)
+2025-12-24 13:12:52.780 DEBUG [Thread-1] telemetry: append_point: seq=2000 len=2000 last_wall=1766599972.781 lap=44 t_ms=63041.0
+2025-12-24 13:12:54.583 INFO [Thread-1] telemetry: PPS=46.2 (packets count=2108)
+2025-12-24 13:12:59.617 INFO [Thread-1] telemetry: PPS=47.5 (packets count=2407)
+2025-12-24 13:13:04.628 INFO [Thread-1] telemetry: PPS=48.7 (packets count=2710)
+2025-12-24 13:13:09.455 DEBUG [Thread-1] telemetry: append_point: seq=3000 len=3000 last_wall=1766599989.456 lap=44 t_ms=79717.0
+2025-12-24 13:13:09.630 INFO [Thread-1] telemetry: PPS=49.6 (packets count=3010)
+2025-12-24 13:13:14.662 INFO [Thread-1] telemetry: PPS=50.3 (packets count=3305)
+2025-12-24 13:13:19.673 INFO [Thread-1] telemetry: PPS=51.1 (packets count=3612)
+2025-12-24 13:13:24.686 INFO [Thread-1] telemetry: PPS=51.7 (packets count=3912)
+2025-12-24 13:13:26.231 DEBUG [Thread-1] telemetry: append_point: seq=4000 len=4000 last_wall=1766600006.231 lap=44 t_ms=96402.0
+2025-12-24 13:13:29.789 INFO [Thread-1] telemetry: PPS=52.0 (packets count=4205)
+2025-12-24 13:13:34.818 INFO [Thread-1] telemetry: PPS=52.6 (packets count=4519)
+2025-12-24 13:13:39.829 INFO [Thread-1] telemetry: PPS=53.0 (packets count=4820)
+2025-12-24 13:13:42.890 DEBUG [Thread-1] telemetry: append_point: seq=5000 len=5000 last_wall=1766600022.890 lap=45 t_ms=1784.0
+2025-12-24 13:13:44.831 INFO [Thread-1] telemetry: PPS=53.4 (packets count=5120)
+2025-12-24 13:13:49.832 INFO [Thread-1] telemetry: PPS=53.7 (packets count=5420)
+2025-12-24 13:13:54.848 INFO [Thread-1] telemetry: PPS=54.0 (packets count=5716)
+2025-12-24 13:13:59.516 DEBUG [Thread-1] telemetry: append_point: seq=6000 len=6000 last_wall=1766600039.516 lap=45 t_ms=18467.0
+2025-12-24 13:13:59.860 INFO [Thread-1] telemetry: PPS=54.3 (packets count=6021)
+2025-12-24 13:14:04.864 INFO [Thread-1] telemetry: PPS=54.5 (packets count=6321)
+2025-12-24 13:18:52.733 INFO [Thread-1] telemetry: SO_RCVBUF set to 1MiB
+2025-12-24 13:18:52.733 INFO [Thread-1] telemetry: UDP bind OK on 0.0.0.0:20777
+2025-12-24 13:19:13.226 INFO [Thread-1] telemetry: PPS=0.0 (packets count=1)
+2025-12-24 13:19:18.240 INFO [Thread-1] telemetry: PPS=11.8 (packets count=300)
+2025-12-24 13:19:23.242 INFO [Thread-1] telemetry: PPS=19.7 (packets count=600)
+2025-12-24 13:19:28.242 INFO [Thread-1] telemetry: PPS=25.3 (packets count=900)
+2025-12-24 13:19:29.918 DEBUG [Thread-1] telemetry: append_point: seq=1000 len=1000 last_wall=1766600369.919 lap=45 t_ms=43759.0
+2025-12-24 13:19:33.258 INFO [Thread-1] telemetry: PPS=29.6 (packets count=1200)
+2025-12-24 13:19:38.274 INFO [Thread-1] telemetry: PPS=33.0 (packets count=1501)
+2025-12-24 13:19:43.290 INFO [Thread-1] telemetry: PPS=35.6 (packets count=1800)
+2025-12-24 13:19:46.601 DEBUG [Thread-1] telemetry: append_point: seq=2000 len=2000 last_wall=1766600386.601 lap=45 t_ms=60454.0
+2025-12-24 13:19:48.300 INFO [Thread-1] telemetry: PPS=37.8 (packets count=2102)
+2025-12-24 13:19:53.302 INFO [Thread-1] telemetry: PPS=39.7 (packets count=2402)
+2025-12-24 13:19:58.317 INFO [Thread-1] telemetry: PPS=41.2 (packets count=2700)
+2025-12-24 13:20:03.287 DEBUG [Thread-1] telemetry: append_point: seq=3000 len=3000 last_wall=1766600403.287 lap=45 t_ms=77139.0
+2025-12-24 13:20:03.318 INFO [Thread-1] telemetry: PPS=42.5 (packets count=3002)
+2025-12-24 13:20:08.321 INFO [Thread-1] telemetry: PPS=43.7 (packets count=3302)
+2025-12-24 13:20:13.323 INFO [Thread-1] telemetry: PPS=44.7 (packets count=3600)
