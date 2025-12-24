@@ -51,8 +51,11 @@ app.layout = html.Div([
     Input("update", "n_intervals")
 )
 def update_graphs(_):
+    # --- Snapshot du deque pour éviter "deque mutated during iteration" ---
+    buf = list(telemetry_buf)
+
     # --- Buffer vide -> placeholders ---
-    if not telemetry_buf:
+    if not buf:
         status = "Buffer: 0 points\n Dernière mise à jour: —"
         return (
             status,
@@ -63,19 +66,20 @@ def update_graphs(_):
                            note="Aucune donnée (pédales)")
         )
 
-    # --- Extraction des données ---
-    t0 = telemetry_buf[0]["t"]
-    t = [x["t"] - t0 for x in telemetry_buf]
-    speed = [x.get("speed", 0) for x in telemetry_buf]
-    rpm = [x.get("rpm", 0) for x in telemetry_buf]
-    gear = [x.get("gear", 0) for x in telemetry_buf]
-    throttle = [x.get("throttle", 0) for x in telemetry_buf]
-    brake = [x.get("brake", 0) for x in telemetry_buf]
-    laps = [x.get("lap", None)
-            for x in telemetry_buf]  # IMPORTANT: doit exister
+    # --- Extraction des données depuis le snapshot ---
+    t0 = buf[0]["t"]
+    t = [x["t"] - t0 for x in buf]
+    speed = [x.get("speed", 0) for x in buf]
+    rpm = [x.get("rpm", 0) for x in buf]
+    gear = [x.get("gear", 0) for x in buf]
+    throttle = [x.get("throttle", 0) for x in buf]
+    brake = [x.get("brake", 0) for x in buf]
+    laps = [x.get("lap", None) for x in buf]
+    # si tu veux colorer les tours invalidés
+    invalids = [x.get("invalid", 0) for x in buf]
 
-    last_ts = telemetry_buf[-1]["t"]
-    status = f"Buffer: {len(telemetry_buf)} points\n Dernière mise à jour: {time.strftime('%H:%M:%S', time.localtime(last_ts))}"
+    last_ts = buf[-1]["t"]
+    status = f"Buffer: {len(buf)} points\n Dernière mise à jour: {time.strftime('%H:%M:%S', time.localtime(last_ts))}"
 
     # --- Détection des segments de tour ---
     lap_segments = []
@@ -91,14 +95,13 @@ def update_graphs(_):
                 })
                 start_idx = i
                 current_lap = laps[i]
-        # Dernier segment jusqu'au dernier point
         lap_segments.append({
             "lap": current_lap,
             "t_start": t[start_idx],
             "t_end": t[-1]
         })
 
-    # --- Construction des figures de base ---
+    # --- Figures de base ---
     speed_fig = go.Figure(
         [go.Scatter(x=t, y=speed, mode="lines", name="Vitesse", line=dict(width=2))])
     speed_fig.update_layout(title="Vitesse (km/h)", xaxis_title="Temps (s)",
@@ -123,14 +126,12 @@ def update_graphs(_):
     tb_fig.update_layout(title="Pédales (Throttle / Brake)",
                          xaxis_title="Temps (s)", yaxis_title="0..1", template="plotly_dark")
 
-    # --- Overlays de tour : lignes + rectangles + étiquettes (très visibles) ---
-    # Couleurs et opacités "fortes" pour qu'on voie clairement
-    vline_color = "#FFD166"  # jaune soutenu
-    band_color = "rgba(255, 209, 102, 0.16)"  # bande semi-transparente
+    # --- Overlays de lap (visibles) ---
+    vline_color = "#FFD166"
+    band_color = "rgba(255, 209, 102, 0.16)"
     label_color = "#FFD166"
 
     def apply_lap_overlays(fig):
-        # On applique sur CHAQUE figure
         for seg in lap_segments:
             # Ligne verticale au début du tour
             fig.add_vline(x=seg["t_start"], line_color=vline_color,
@@ -138,13 +139,12 @@ def update_graphs(_):
             # Bande couvrant la durée du tour
             fig.add_vrect(x0=seg["t_start"], x1=seg["t_end"],
                           fillcolor=band_color, line_width=0, layer="below")
-            # Étiquette "Lap N" au-dessus de la zone
+            # Annotation "Lap N"
             xmid = (seg["t_start"] + seg["t_end"]) / 2.0
             fig.add_annotation(x=xmid, y=1.05, xref="x", yref="paper",
                                text=f"Lap {seg['lap']}",
                                showarrow=False, font=dict(size=13, color=label_color))
 
-    # N’applique que si on a trouvé des segments (sinon rien à tracer)
     if lap_segments:
         for f in (speed_fig, rpm_fig, gear_fig, tb_fig):
             apply_lap_overlays(f)
