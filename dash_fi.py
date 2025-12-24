@@ -11,6 +11,8 @@ from telemetry_store import telemetry_buf
 # >>> Import de la boucle de capture (ne démarre rien à l'import grâce au if __name__ == "__main__" dans telemetry_capture.py)
 from telemetry_capture import run_capture
 
+SHOW_LAP_OVERLAYS = True  # mets False pour désactiver tous les overlays lap
+
 app = Dash(__name__)
 app.title = "F1 Live Telemetry"
 
@@ -51,105 +53,167 @@ app.layout = html.Div([
     Input("update", "n_intervals")
 )
 def update_graphs(_):
-    # --- Snapshot du deque pour éviter "deque mutated during iteration" ---
-    buf = list(telemetry_buf)
+    try:
+        # --- Snapshot du deque pour éviter les mutations concurrentes ---
+        buf = list(telemetry_buf)
 
-    # --- Buffer vide -> placeholders ---
-    if not buf:
-        status = "Buffer: 0 points\n Dernière mise à jour: —"
-        return (
-            status,
-            make_empty_fig("Vitesse (km/h)", "km/h"),
-            make_empty_fig("Régime moteur (RPM)", "RPM"),
-            make_empty_fig("Rapport engagé", "Gear"),
-            make_empty_fig("Pédales (Throttle / Brake)", "0..1",
-                           note="Aucune donnée (pédales)")
+        # --- Buffer vide -> placeholders ---
+        if not buf:
+            status = "Buffer: 0 points\n Dernière mise à jour: —"
+            return (
+                status,
+                make_empty_fig("Vitesse (km/h)", "km/h"),
+                make_empty_fig("Régime moteur (RPM)", "RPM"),
+                make_empty_fig("Rapport engagé", "Gear"),
+                make_empty_fig("Pédales (Throttle / Brake)",
+                               "0..1", note="Aucune donnée (pédales)")
+            )
+
+        # --- Grouper par lap tous les points où le chrono du jeu > 0 ---
+        #     => on superpose tous les tours sur l'axe X = temps de lap (s)
+        # dict: lap_num -> list of points (dans l'ordre d'arrivée)
+        laps_data = {}
+        for p in buf:
+            lap_num = p.get("lap")
+            t_game_ms = p.get("t_game_ms", 0.0)
+            if lap_num is None or t_game_ms <= 0.0:
+                continue  # chrono arrêté: on ignore
+            laps_data.setdefault(lap_num, []).append(p)
+
+        # --- Si aucun tour avec chrono qui tourne -> placeholders ---
+        if not laps_data:
+            last_ts_wall = buf[-1]["t"]
+            status = (
+                f"Buffer: {len(buf)} points\n"
+                f"Dernière mise à jour: {time.strftime('%H:%M:%S', time.localtime(last_ts_wall))}\n"
+                "Chrono arrêté (t_game=0) — en attente du passage de la ligne de départ"
+            )
+            return (
+                status,
+                make_empty_fig("Vitesse (km/h)", "km/h", note="Chrono arrêté"),
+                make_empty_fig("Régime moteur (RPM)",
+                               "RPM", note="Chrono arrêté"),
+                make_empty_fig("Rapport engagé", "Gear", note="Chrono arrêté"),
+                make_empty_fig("Pédales (Throttle / Brake)",
+                               "0..1", note="Chrono arrêté"),
+            )
+
+        # --- Préparer les figures et une palette de couleurs par lap ---
+        # Palette simple et cohérente pour tous les graphes
+        lap_colors = [
+            "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728",
+            "#9467bd", "#8c564b", "#e377c2", "#7f7f7f",
+            "#bcbd22", "#17becf"
+        ]
+
+        def color_for_lap(idx):
+            return lap_colors[idx % len(lap_colors)]
+
+        x_title = "Temps de tour (s)"
+        speed_fig = go.Figure()
+        rpm_fig = go.Figure()
+        gear_fig = go.Figure()
+        tb_fig = go.Figure()
+
+        # --- Construire les traces pour CHAQUE lap (overlay), X recalé à 0 ---
+        # Tri des laps pour un ordre stable (croissant)
+        sorted_laps = sorted(laps_data.keys())
+        for li, lap_num in enumerate(sorted_laps):
+            pts = laps_data[lap_num]
+            # Axe X brut (secondes) puis recalage pour que le 1er point soit exactement 0.0
+            x_raw = [p["t_game_ms"] / 1000.0 for p in pts]
+            x0 = x_raw[0]
+            x = [xi - x0 for xi in x_raw]
+
+            # Séries Y
+            speed = [p.get("speed", 0) for p in pts]
+            rpm = [p.get("rpm", 0) for p in pts]
+            gear = [p.get("gear", 0) for p in pts]
+            throttle = [p.get("throttle", 0) for p in pts]
+            brake = [p.get("brake", 0) for p in pts]
+
+            col = color_for_lap(li)
+            grp = f"lap{lap_num}"
+
+            # Vitesse
+            speed_fig.add_trace(go.Scatter(
+                x=x, y=speed, mode="lines",
+                name=f"Lap {lap_num}",
+                line=dict(width=2, color=col),
+                legendgroup=grp,
+                hovertemplate="t=%{x:.3f}s<br>speed=%{y} km/h<extra></extra>",
+            ))
+
+            # RPM
+            rpm_fig.add_trace(go.Scatter(
+                x=x, y=rpm, mode="lines",
+                name=f"Lap {lap_num}",
+                line=dict(width=2, color=col),
+                legendgroup=grp,
+                hovertemplate="t=%{x:.3f}s<br>rpm=%{y}<extra></extra>",
+            ))
+
+            # Gear
+            gear_fig.add_trace(go.Scatter(
+                x=x, y=gear, mode="lines+markers",
+                name=f"Lap {lap_num}",
+                line=dict(width=2, color=col),
+                marker=dict(size=4, color=col),
+                legendgroup=grp,
+                hovertemplate="t=%{x:.3f}s<br>gear=%{y}<extra></extra>",
+            ))
+
+            # Pédales : on trace 2 courbes par lap (Throttle/Brake) avec styles distincts
+            tb_fig.add_trace(go.Scatter(
+                x=x, y=throttle, mode="lines",
+                name=f"Throttle (Lap {lap_num})",
+                line=dict(width=2, color=col, dash="solid"),
+                legendgroup=grp,
+                hovertemplate="t=%{x:.3f}s<br>throttle=%{y:.2f}<extra></extra>",
+            ))
+            tb_fig.add_trace(go.Scatter(
+                x=x, y=brake, mode="lines",
+                name=f"Brake (Lap {lap_num})",
+                line=dict(width=2, color=col, dash="dot"),
+                legendgroup=grp,
+                hovertemplate="t=%{x:.3f}s<br>brake=%{y:.2f}<extra></extra>",
+            ))
+
+        # --- Layout commun (thème sombre, titres, axe X en secondes) ---
+        speed_fig.update_layout(
+            title="Vitesse (km/h)", xaxis_title=x_title, yaxis_title="km/h", template="plotly_dark")
+        rpm_fig.update_layout(title="Régime moteur (RPM)",
+                              xaxis_title=x_title, yaxis_title="RPM", template="plotly_dark")
+        gear_fig.update_layout(title="Rapport engagé", xaxis_title=x_title, yaxis_title="Gear",
+                               template="plotly_dark", yaxis=dict(dtick=1))
+        tb_fig.update_layout(title="Pédales (Throttle / Brake)",
+                             xaxis_title=x_title, yaxis_title="0..1", template="plotly_dark")
+
+        # --- Repère visuel "départ" : vline à x=0 (commune à tous) ---
+        for fig in (speed_fig, rpm_fig, gear_fig, tb_fig):
+            fig.add_vline(x=0.0, line_color="#FFD166",
+                          line_width=2.0, line_dash="dash")
+
+        # --- Statut : nombre de laps visibles et dernière mise à jour ---
+        last_ts_wall = buf[-1]["t"]
+        status = (
+            f"Laps visibles: {len(sorted_laps)} | Points total: {sum(len(laps_data[l]) for l in sorted_laps)}\n"
+            f"Dernière mise à jour: {time.strftime('%H:%M:%S', time.localtime(last_ts_wall))}"
         )
 
-    # --- Extraction des données depuis le snapshot ---
-    t0 = buf[0]["t"]
-    t = [x["t"] - t0 for x in buf]
-    speed = [x.get("speed", 0) for x in buf]
-    rpm = [x.get("rpm", 0) for x in buf]
-    gear = [x.get("gear", 0) for x in buf]
-    throttle = [x.get("throttle", 0) for x in buf]
-    brake = [x.get("brake", 0) for x in buf]
-    laps = [x.get("lap", None) for x in buf]
-    # si tu veux colorer les tours invalidés
-    invalids = [x.get("invalid", 0) for x in buf]
+        return status, speed_fig, rpm_fig, gear_fig, tb_fig
 
-    last_ts = buf[-1]["t"]
-    status = f"Buffer: {len(buf)} points\n Dernière mise à jour: {time.strftime('%H:%M:%S', time.localtime(last_ts))}"
-
-    # --- Détection des segments de tour ---
-    lap_segments = []
-    if laps and laps[0] is not None:
-        start_idx = 0
-        current_lap = laps[0]
-        for i in range(1, len(laps)):
-            if laps[i] != current_lap:
-                lap_segments.append({
-                    "lap": current_lap,
-                    "t_start": t[start_idx],
-                    "t_end": t[i-1]
-                })
-                start_idx = i
-                current_lap = laps[i]
-        lap_segments.append({
-            "lap": current_lap,
-            "t_start": t[start_idx],
-            "t_end": t[-1]
-        })
-
-    # --- Figures de base ---
-    speed_fig = go.Figure(
-        [go.Scatter(x=t, y=speed, mode="lines", name="Vitesse", line=dict(width=2))])
-    speed_fig.update_layout(title="Vitesse (km/h)", xaxis_title="Temps (s)",
-                            yaxis_title="km/h", template="plotly_dark")
-
-    rpm_fig = go.Figure(
-        [go.Scatter(x=t, y=rpm, mode="lines", name="RPM", line=dict(width=2))])
-    rpm_fig.update_layout(title="Régime moteur (RPM)",
-                          xaxis_title="Temps (s)", yaxis_title="RPM", template="plotly_dark")
-
-    gear_fig = go.Figure(
-        [go.Scatter(x=t, y=gear, mode="lines+markers", name="Gear", line=dict(width=2))])
-    gear_fig.update_layout(title="Rapport engagé", xaxis_title="Temps (s)", yaxis_title="Gear",
-                           template="plotly_dark", yaxis=dict(dtick=1))
-
-    tb_fig = go.Figure([
-        go.Scatter(x=t, y=throttle, mode="lines",
-                   name="Throttle", line=dict(width=2)),
-        go.Scatter(x=t, y=brake,    mode="lines",
-                   name="Brake",    line=dict(width=2)),
-    ])
-    tb_fig.update_layout(title="Pédales (Throttle / Brake)",
-                         xaxis_title="Temps (s)", yaxis_title="0..1", template="plotly_dark")
-
-    # --- Overlays de lap (visibles) ---
-    vline_color = "#FFD166"
-    band_color = "rgba(255, 209, 102, 0.16)"
-    label_color = "#FFD166"
-
-    def apply_lap_overlays(fig):
-        for seg in lap_segments:
-            # Ligne verticale au début du tour
-            fig.add_vline(x=seg["t_start"], line_color=vline_color,
-                          line_width=2.5, line_dash="dash")
-            # Bande couvrant la durée du tour
-            fig.add_vrect(x0=seg["t_start"], x1=seg["t_end"],
-                          fillcolor=band_color, line_width=0, layer="below")
-            # Annotation "Lap N"
-            xmid = (seg["t_start"] + seg["t_end"]) / 2.0
-            fig.add_annotation(x=xmid, y=1.05, xref="x", yref="paper",
-                               text=f"Lap {seg['lap']}",
-                               showarrow=False, font=dict(size=13, color=label_color))
-
-    if lap_segments:
-        for f in (speed_fig, rpm_fig, gear_fig, tb_fig):
-            apply_lap_overlays(f)
-
-    return status, speed_fig, rpm_fig, gear_fig, tb_fig
+    except Exception as e:
+        # Filet de sécurité : retour de placeholders avec message (évite "server did not respond")
+        print("[dash] update_graphs ERROR:", type(e).__name__, e)
+        status = "Erreur callback — voir console"
+        return (
+            status,
+            make_empty_fig("Vitesse (km/h)", "km/h", note=str(e)),
+            make_empty_fig("Régime moteur (RPM)", "RPM", note=str(e)),
+            make_empty_fig("Rapport engagé", "Gear", note=str(e)),
+            make_empty_fig("Pédales (Throttle / Brake)", "0..1", note=str(e)),
+        )
 
 
 def start_capture_in_background():

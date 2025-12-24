@@ -51,16 +51,23 @@ def run_capture():
                 continue
 
             # 2) Traiter CarTelemetry et pousser dans le buffer
+
             if isinstance(packet, PacketCarTelemetryData):
                 player_idx = packet.header.playerCarIndex
                 car = packet.carTelemetryData[player_idx]
+
                 # Fallback si LapData pas encore reçu
                 lap = last_lap_pkt.lapData[player_idx] if last_lap_pkt else None
+
                 pos_str = str(lap.carPosition) if lap else "?"
                 lap_num = lap.currentLapNum if lap else 0
                 last_ms = lap.lastLapTimeInMS if lap else 0
                 invalid = int(lap.currentLapInvalid) if lap else 0
                 lapDist = float(lap.lapDistance) if lap else 0.0
+
+                # <<< NOUVEAU : temps de tour courant côté jeu (ms -> float ms)
+                curLapMs = float(
+                    getattr(lap, "currentLapTimeInMS", 0)) if lap else 0.0
 
                 # Ligne statut rate-limitée
                 now = time.time()
@@ -68,13 +75,16 @@ def run_capture():
                     sys.stdout.write(
                         f"\rVitesse: {car.speed:4d} km/h | "
                         f"Pos: {pos_str} | Lap: {lap_num} | "
-                        f"LastLap: {last_ms} ms | Invalid: {invalid}"
+                        f"LastLap: {last_ms} ms | Invalid: {invalid} | "
+                        f"Laps time: {curLapMs:.0f} ms   "
                     )
                     sys.stdout.flush()
                     last_print = now
 
                 telemetry_buf.append({
-                    "t": time.time(),
+                    "t": time.time(),         # horloge mur (gardé)
+                    # <<< NOUVEAU : temps de tour du jeu (ms)
+                    "t_game_ms": curLapMs,
                     "speed": car.speed,
                     "rpm": car.engineRPM,
                     "gear": car.gear,
@@ -85,6 +95,7 @@ def run_capture():
                     "invalid": invalid,
                     "lapDist": lapDist,
                 })
+
     except KeyboardInterrupt:
         print("\n[capture] Arrêt demandé (Ctrl+C)")
     finally:
