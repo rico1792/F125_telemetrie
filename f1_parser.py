@@ -1,9 +1,9 @@
-
+﻿
 import struct
 from typing import List, Optional
 
-# Constantes
-MAX_NUM_CARS_IN_UDP_DATA = 22
+# Constantes (F1 26 / 2026 Season Pack)
+MAX_NUM_CARS_IN_UDP_DATA = 24
 MAX_PARTICIPANT_NAME_LEN = 32
 MAX_TYRE_STINTS = 8
 MAX_NUM_TYRE_SETS = 13 + 7
@@ -28,6 +28,7 @@ class PacketId:
     MOTION_EX = 13
     TIME_TRIAL = 14
     LAP_POSITIONS = 15
+    CAR_TELEMETRY_2 = 16  # Nouveau F1 26 : Active Aero / Overtake Mode
 
 # --------------------------------------------------------------------------
 # Structures de base
@@ -57,8 +58,13 @@ class PacketHeader:
 
 
 class CarMotionData:
+    # F1 26 : gForce passe de float à int16 quantisé (÷1000 pour valeur réelle)
+    # Format : 3f pos + 3f vel + 3h fwdDir + 3h rightDir + 3h gForce(int16) + 3f yaw/pitch/roll
+    _FMT = '<fff fff hhh hhh hhh fff'
+    _SIZE = struct.calcsize(_FMT)  # 54 octets
+
     def __init__(self, data: bytes):
-        unpacked = struct.unpack('<fff fff hhh hhh fff fff', data[:60])
+        unpacked = struct.unpack(self._FMT, data[:self._SIZE])
         self.worldPositionX = unpacked[0]
         self.worldPositionY = unpacked[1]
         self.worldPositionZ = unpacked[2]
@@ -71,9 +77,10 @@ class CarMotionData:
         self.worldRightDirX = unpacked[9]
         self.worldRightDirY = unpacked[10]
         self.worldRightDirZ = unpacked[11]
-        self.gForceLateral = unpacked[12]
-        self.gForceLongitudinal = unpacked[13]
-        self.gForceVertical = unpacked[14]
+        # Valeurs quantisées — diviser par 1000.0 pour obtenir la valeur réelle en G
+        self.gForceLateral = unpacked[12] / 1000.0
+        self.gForceLongitudinal = unpacked[13] / 1000.0
+        self.gForceVertical = unpacked[14] / 1000.0
         self.yaw = unpacked[15]
         self.pitch = unpacked[16]
         self.roll = unpacked[17]
@@ -82,8 +89,9 @@ class CarMotionData:
 class PacketMotionData:
     def __init__(self, data: bytes):
         self.header = PacketHeader(data)
+        stride = CarMotionData._SIZE  # 54 octets (F1 26)
         self.carMotionData = [
-            CarMotionData(data[29 + i*60: 29 + (i+1)*60])
+            CarMotionData(data[29 + i*stride: 29 + (i+1)*stride])
             for i in range(MAX_NUM_CARS_IN_UDP_DATA)
         ]
 
@@ -271,29 +279,13 @@ class PacketLapData:
 
 class TimeTrialDataSet:
     """
-    Résumé d’un meilleur tour (PB, joueur session best, rival).
-    Voir spéc F1 25 : PacketTimeTrialData / TimeTrialDataSet. [1](https://dobleengineeringo365-my.sharepoint.com/personal/ebellemare_doble_com/Documents/Fichiers%20de%20conversation%20Microsoft%20Copilot/f1_parser.py)
+    F1 26 : m_teamId passe de uint8 a uint16 -> format '<BH IIII BBBBBB' (25 octets)
     """
-    _FMT = '<BBIIII BBBBB B'  # mapping logique: on lit uint8/uint pour chaque champ (cf. spéc)
-    # Détail des champs:
-    # uint8 m_carIdx
-    # uint8 m_teamId
-    # uint   m_lapTimeInMS
-    # uint   m_sector1TimeInMS
-    # uint   m_sector2TimeInMS
-    # uint   m_sector3TimeInMS
-    # uint8  m_tractionControl
-    # uint8  m_gearboxAssist
-    # uint8  m_antiLockBrakes
-    # uint8  m_equalCarPerformance
-    # uint8  m_customSetup
-    # uint8  m_valid
+    _FMT = '<BH IIII BBBBBB'  # 1 + 2 + 4*4 + 6*1 = 25 octets
+    _SIZE = struct.calcsize(_FMT)  # 25
 
     def __init__(self, data: bytes):
-        # Selon les builds, le type "uint" dans le doc EA est un 32-bit non signé
-        # On lit avec '<BBIIII BBBBB B' (2*uint8 + 4*uint32 + 6*uint8) -> 2 + 16 + 6 = 24 octets
-        # Si ta capture signale une taille différente, on ajustera le format (certaines toolchains écrivent '<I' pour uint32).
-        unpacked = struct.unpack('<BBIIII BBBBB B', data[:24])
+        unpacked = struct.unpack(self._FMT, data[:self._SIZE])
         self.carIdx = unpacked[0]
         self.teamId = unpacked[1]
         self.lapTimeInMS = unpacked[2]
@@ -310,21 +302,63 @@ class TimeTrialDataSet:
 
 class PacketTimeTrialData:
     """
-    Contient trois TimeTrialDataSet:
-      - playerSessionBestDataSet
-      - personalBestDataSet
-      - rivalDataSet
-    Cf. spéc F1 25. [1](https://dobleengineeringo365-my.sharepoint.com/personal/ebellemare_doble_com/Documents/Fichiers%20de%20conversation%20Microsoft%20Copilot/f1_parser.py)
+    F1 26 : 3 x TimeTrialDataSet (25 octets chacun) -> total 104 octets (29 header + 75 data)
     """
 
     def __init__(self, data: bytes):
         self.header = PacketHeader(data)
         off = 29
-        self.playerSessionBestDataSet = TimeTrialDataSet(data[off: off + 24])
-        off += 24
-        self.personalBestDataSet = TimeTrialDataSet(data[off: off + 24])
-        off += 24
-        self.rivalDataSet = TimeTrialDataSet(data[off: off + 24])
+        sz = TimeTrialDataSet._SIZE  # 25
+        self.playerSessionBestDataSet = TimeTrialDataSet(data[off: off + sz])
+        off += sz
+        self.personalBestDataSet = TimeTrialDataSet(data[off: off + sz])
+        off += sz
+        self.rivalDataSet = TimeTrialDataSet(data[off: off + sz])
+
+# --------------------------------------------------------------------------
+# CAR TELEMETRY 2 (nouveau F1 26 — paquet ID 16)
+# Active Aero, Overtake Mode, indicateur réglementation 2026
+# --------------------------------------------------------------------------
+
+
+class CarTelemetry2Data:
+    # uint8  activeAeroMode            (0=Corner, 1=Straight)
+    # uint8  activeAeroAvailable       (0=non dispo, 1=dispo)
+    # uint16 activeAeroActivationDistance (0=non dispo, sinon X mètres)
+    # uint8  overtakeAvailable         (0=non dispo, 1=dispo)
+    # uint8  overtakeActive            (0=inactif, 1=actif)
+    # uint16 overtakeActivationDistance (0=non dispo, sinon X mètres)
+    # uint8  regulations2026           (0=pré-2026, 1=2026)
+    # uint8  drivingWrongWay           (0=normal, 1=à contresens)
+    _FMT = '<BBH BBH BB'  # 1+1+2+1+1+2+1+1 = 10 octets
+    _SIZE = struct.calcsize(_FMT)  # 10
+
+    def __init__(self, data: bytes):
+        unpacked = struct.unpack(self._FMT, data[:self._SIZE])
+        self.activeAeroMode = unpacked[0]
+        self.activeAeroAvailable = unpacked[1]
+        self.activeAeroActivationDistance = unpacked[2]
+        self.overtakeAvailable = unpacked[3]
+        self.overtakeActive = unpacked[4]
+        self.overtakeActivationDistance = unpacked[5]
+        self.regulations2026 = unpacked[6]
+        self.drivingWrongWay = unpacked[7]
+
+
+class PacketCarTelemetry2Data:
+    """
+    Paquet ID 16 (F1 26) : données actives aéro + overtake pour 24 voitures.
+    Taille : 29 (header) + 24 * 10 = 269 octets.
+    """
+
+    def __init__(self, data: bytes):
+        self.header = PacketHeader(data)
+        stride = CarTelemetry2Data._SIZE  # 10
+        self.carTelemetry2Data = [
+            CarTelemetry2Data(data[29 + i * stride: 29 + (i + 1) * stride])
+            for i in range(MAX_NUM_CARS_IN_UDP_DATA)
+        ]
+
 
 # --------------------------------------------------------------------------
 # parse_packet : dispatcher
@@ -424,6 +458,13 @@ def parse_packet(data: bytes) -> Optional[object]:
 
     elif packet_id == PacketId.LAP_POSITIONS:
         # À implémenter si besoin
+        return None
+
+    elif packet_id == PacketId.CAR_TELEMETRY_2:
+        try:
+            return PacketCarTelemetry2Data(data)
+        except struct.error as e:
+            print(f"[CAR_TELEMETRY_2 struct.error] len={len(data)} -> {e}")
         return None
 
     # Type inconnu
