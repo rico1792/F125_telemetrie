@@ -1,4 +1,5 @@
-﻿from f1_parser import parse_packet, PacketCarTelemetryData, PacketLapData, PacketTimeTrialData, PacketParticipantsData, TEAM_NAMES
+﻿from f1_parser import parse_packet, PacketCarTelemetryData, PacketLapData, PacketTimeTrialData, PacketParticipantsData, PacketMotionData, TEAM_NAMES
+import math
 import socket
 import threading
 
@@ -235,20 +236,19 @@ class DashboardWindow(QMainWindow):
             if isinstance(packet, PacketCarTelemetryData):
                 idx = packet.header.playerCarIndex
                 self._speed = packet.carTelemetryData[idx].speed
-                if self._rival_idx >= 0:
-                    self._rival_speed = packet.carTelemetryData[self._rival_idx].speed
                 if self._pb_idx >= 0:
                     self._pb_speed = packet.carTelemetryData[self._pb_idx].speed
-                # DEBUG: vitesse ghost PB vs joueur
-                if self._pb_idx >= 0:
-                    if not hasattr(self, '_dbg_count'):
-                        self._dbg_count = 0
-                    self._dbg_count += 1
-                    if self._dbg_count % 100 == 0:
-                        pb_spd = packet.carTelemetryData[self._pb_idx].speed
-                        pl_spd = packet.carTelemetryData[idx].speed
-                        print(
-                            f"[DEBUG] PB idx={self._pb_idx} spd={pb_spd}  player spd={pl_spd}")
+
+            elif isinstance(packet, PacketMotionData):
+                # Vitesse rival depuis velocites 3D (fiable pour les ghosts)
+                if self._rival_idx >= 0:
+                    m = packet.carMotionData[self._rival_idx]
+                    spd = int(math.sqrt(m.worldVelocityX**2 +
+                              m.worldVelocityY**2 + m.worldVelocityZ**2) * 3.6)
+                    # Ignorer les artefacts de vitesse impossibles (>380 km/h)
+                    if spd <= 380:
+                        self._rival_speed = spd
+
             elif isinstance(packet, PacketTimeTrialData):
                 rd = packet.rivalDataSet
                 if rd.valid:
@@ -344,7 +344,12 @@ class DashboardWindow(QMainWindow):
                             self._chart.set_visible_rival_laps(
                                 self._chart._rival_visible | {last_lap_num})
 
-                # PB ghost : sauvegardé lors de la boucle du ghost (voir ci-dessous)
+                # PB ghost : sauvegarder le tour joueur lui-même si c'est un nouveau PB
+                saved_pb = self._chart.commit_pb_from_player_lap(
+                    self._last_lap_ms_completed)
+                if saved_pb:
+                    self._chart.set_visible_rival_laps(
+                        self._chart._rival_visible | {0})
 
             # Reset buffer joueur seulement (ghosts continuent leur propre cycle)
             self._chart.reset()
@@ -378,21 +383,6 @@ class DashboardWindow(QMainWindow):
             self._last_rival_lap_ms_acc = self._rival_lap_ms
             self._chart.append_rival(
                 float(self._rival_speed), self._rival_lap_ms)
-
-        if self._pb_idx >= 0:
-            last_pb_ms = getattr(self, '_last_pb_lap_ms_acc', 0.0)
-            if self._pb_lap_ms < last_pb_ms - 500 and last_pb_ms > 0:
-                # Ghost PB a bouclé : on a un tour complet, sauvegarder
-                if self._tt_pb_lap_ms > 0:
-                    existing = self._chart._rival_laps.get(0)
-                    if existing is None or self._tt_pb_lap_ms < existing["lap_time_ms"]:
-                        saved = self._chart.commit_pb_lap(self._tt_pb_lap_ms)
-                        if saved:
-                            self._chart.set_visible_rival_laps(
-                                self._chart._rival_visible | {0})
-                self._chart.reset_pb()
-            self._last_pb_lap_ms_acc = self._pb_lap_ms
-            self._chart.append_pb(float(self._pb_speed), self._pb_lap_ms)
 
         self._lbl_lap.setText(f"Tour {lap_num}")
         self._lbl_speed.setText(f"{speed} km/h")

@@ -143,6 +143,8 @@ class SpeedChart(QWidget):
     # ── Rival ───────────────────────────────────────────────────────────
 
     def append_rival(self, speed: float, lap_ms: float):
+        if lap_ms <= 0 or speed <= 0:
+            return  # ghost hors piste ou à l'arrêt
         t = lap_ms / 1000.0
         # Ignorer les points non monotones
         if self._rival_cur_times and t < self._rival_cur_times[-1]:
@@ -176,6 +178,21 @@ class SpeedChart(QWidget):
         self._rival_laps[0] = {
             "times":       list(self._pb_cur_times),
             "speeds":      list(self._pb_cur_speeds),
+            "lap_time_ms": lap_time_ms,
+            "label":       "Meilleur perso",
+        }
+        return True
+
+    def commit_pb_from_player_lap(self, lap_time_ms: float) -> bool:
+        """Sauvegarde le tour courant du JOUEUR comme PB ghost (donnees exactes)."""
+        if len(self._cur_times) < 5:
+            return False
+        existing = self._rival_laps.get(0)
+        if existing is not None and lap_time_ms >= existing["lap_time_ms"]:
+            return False  # pas un nouveau PB
+        self._rival_laps[0] = {
+            "times":       list(self._cur_times),
+            "speeds":      list(self._cur_speeds),
             "lap_time_ms": lap_time_ms,
             "label":       "Meilleur perso",
         }
