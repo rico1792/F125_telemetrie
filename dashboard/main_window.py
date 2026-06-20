@@ -35,6 +35,10 @@ class DashboardWindow(QMainWindow):
         self._rival_position = 0
         self._rival_global_cycle = 1
         self._rival_saved_idx: dict = {}  # {nom -> cycle_key}
+        # ghost_t au moment où le joueur a démarré
+        self._rival_time_offset: float = -1.0
+        # durée du tour du rival (pour wrap)
+        self._rival_lap_duration: float = 0.0
 
         # PB ghost (meilleur tour personnel)
         self._pb_idx = -1
@@ -42,6 +46,8 @@ class DashboardWindow(QMainWindow):
         self._pb_lap_ms = 0.0
         self._pb_saved = False
         self._tt_pb_lap_ms = 0
+        self._pb_time_offset: float = -1.0
+        self._pb_lap_duration: float = 0.0
 
         # Time Trial : infos statiques du rival
         self._tt_rival_lap_ms = 0
@@ -164,11 +170,6 @@ class DashboardWindow(QMainWindow):
         rival_header = menu.addAction("── Rival ──")
         rival_header.setEnabled(False)
 
-        action_rival_cur = menu.addAction("Tour en cours (rival)")
-        action_rival_cur.setCheckable(True)
-        action_rival_cur.setChecked(self._chart._show_rival_cur)
-        action_rival_cur.setData("rival_cur")
-
         rival_laps = self._chart.rival_lap_info()
         best_rival = self._chart.best_rival_lap_num()
         for lap_num, lap_time_ms, lbl in rival_laps:
@@ -189,8 +190,6 @@ class DashboardWindow(QMainWindow):
             self._chart.set_cur_visible(not self._chart._show_cur)
         elif chosen.data() == "clear":
             self._chart.set_visible_laps(set())
-        elif chosen.data() == "rival_cur":
-            self._chart.set_rival_cur_visible(not self._chart._show_rival_cur)
         elif isinstance(chosen.data(), tuple) and chosen.data()[0] == "rival":
             lap_num = chosen.data()[1]
             visible = set(self._chart._rival_visible)
@@ -240,6 +239,16 @@ class DashboardWindow(QMainWindow):
                     self._rival_speed = packet.carTelemetryData[self._rival_idx].speed
                 if self._pb_idx >= 0:
                     self._pb_speed = packet.carTelemetryData[self._pb_idx].speed
+                # DEBUG: vitesse ghost PB vs joueur
+                if self._pb_idx >= 0:
+                    if not hasattr(self, '_dbg_count'):
+                        self._dbg_count = 0
+                    self._dbg_count += 1
+                    if self._dbg_count % 100 == 0:
+                        pb_spd = packet.carTelemetryData[self._pb_idx].speed
+                        pl_spd = packet.carTelemetryData[idx].speed
+                        print(
+                            f"[DEBUG] PB idx={self._pb_idx} spd={pb_spd}  player spd={pl_spd}")
             elif isinstance(packet, PacketTimeTrialData):
                 rd = packet.rivalDataSet
                 if rd.valid:
@@ -255,9 +264,11 @@ class DashboardWindow(QMainWindow):
                         f"ABS={'On' if rd.antiLockBrakes else 'Off'}  "
                         f"Gear={'Auto' if rd.gearboxAssist else 'Man'}"
                     )
+                    self._rival_lap_duration = float(rd.lapTimeInMS)
                 pb = packet.personalBestDataSet
                 if pb.valid:
                     self._tt_pb_lap_ms = pb.lapTimeInMS
+                    self._pb_lap_duration = float(pb.lapTimeInMS)
             elif isinstance(packet, PacketParticipantsData):
                 rd_card_idx = getattr(self, '_tt_rival_card_idx', -1)
                 # Mettre à jour l'index du rival à partir du TimeTrialData
@@ -333,7 +344,45 @@ class DashboardWindow(QMainWindow):
                             self._chart.set_visible_rival_laps(
                                 self._chart._rival_visible | {last_lap_num})
 
-                # PB ghost : cle = 0, remplace si meilleur temps
+                # PB ghost : sauvegardé lors de la boucle du ghost (voir ci-dessous)
+
+            # Reset buffer joueur seulement (ghosts continuent leur propre cycle)
+            self._chart.reset()
+
+        elif is_restart:
+            # Restart sans compléter le tour : jeter les données partielles
+            self._chart.reset()
+            self._chart.reset_rival()
+            self._chart.reset_pb()
+            self._last_rival_lap_ms_acc = 0.0
+            self._last_pb_lap_ms_acc = 0.0
+
+        self._last_lap_num = lap_num
+        self._last_lap_ms = lap_ms
+
+        # Accumuler les ghosts — sauvegarder + resetter quand le ghost boucle
+        if self._rival_idx >= 0:
+            last_rival_ms = getattr(self, '_last_rival_lap_ms_acc', 0.0)
+            if self._rival_lap_ms < last_rival_ms - 500 and last_rival_ms > 0:
+                # Ghost rival a bouclé : on a un tour complet, sauvegarder
+                rival_name = self._tt_rival_name or f"Rival {self._rival_idx}"
+                lap_label = f"{rival_name} (T{self._lap_num})"
+                if self._lap_num not in self._chart._rival_laps:
+                    saved = self._chart.commit_rival_lap(
+                        self._lap_num, self._rival_last_lap_ms_completed,
+                        label=lap_label)
+                    if saved is not None:
+                        self._chart.set_visible_rival_laps(
+                            self._chart._rival_visible | {self._lap_num})
+                self._chart.reset_rival()
+            self._last_rival_lap_ms_acc = self._rival_lap_ms
+            self._chart.append_rival(
+                float(self._rival_speed), self._rival_lap_ms)
+
+        if self._pb_idx >= 0:
+            last_pb_ms = getattr(self, '_last_pb_lap_ms_acc', 0.0)
+            if self._pb_lap_ms < last_pb_ms - 500 and last_pb_ms > 0:
+                # Ghost PB a bouclé : on a un tour complet, sauvegarder
                 if self._tt_pb_lap_ms > 0:
                     existing = self._chart._rival_laps.get(0)
                     if existing is None or self._tt_pb_lap_ms < existing["lap_time_ms"]:
@@ -341,26 +390,8 @@ class DashboardWindow(QMainWindow):
                         if saved:
                             self._chart.set_visible_rival_laps(
                                 self._chart._rival_visible | {0})
-
-            # Reset buffers pour le nouveau tour
-            self._chart.reset()
-            self._chart.reset_rival()
-            self._chart.reset_pb()
-
-        elif is_restart:
-            # Restart sans compléter le tour : jeter les données partielles
-            self._chart.reset()
-            self._chart.reset_rival()
-            self._chart.reset_pb()
-
-        self._last_lap_num = lap_num
-        self._last_lap_ms = lap_ms
-
-        # Accumuler les ghosts en continu
-        if self._rival_idx >= 0:
-            self._chart.append_rival(
-                float(self._rival_speed), self._rival_lap_ms)
-        if self._pb_idx >= 0:
+                self._chart.reset_pb()
+            self._last_pb_lap_ms_acc = self._pb_lap_ms
             self._chart.append_pb(float(self._pb_speed), self._pb_lap_ms)
 
         self._lbl_lap.setText(f"Tour {lap_num}")
