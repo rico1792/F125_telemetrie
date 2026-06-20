@@ -2,12 +2,12 @@
 import socket
 import threading
 
-from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
-from PyQt6.QtCore import QTimer
+from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QMenu
+from PyQt6.QtCore import QTimer, QPoint
 from PyQt6.QtGui import QFont
 
 from .constants import BG_DARK, BG_MID, TEXT_COLOR, UPDATE_MS
-from .widgets.speed_chart import SpeedChart
+from .widgets.speed_chart import SpeedChart, ms_to_str
 
 import sys
 import os
@@ -24,7 +24,8 @@ class DashboardWindow(QMainWindow):
 
         self._speed = 0
         self._lap_ms = 0.0
-        self._lap_num = 0   # pour détecter le changement de tour
+        self._lap_num = 0
+        self._last_lap_ms_completed = 0.0  # lastLapTimeInMS du dernier tour complet
 
         self._build_ui()
         self._start_udp()
@@ -47,6 +48,18 @@ class DashboardWindow(QMainWindow):
         top.addWidget(title)
         top.addStretch()
 
+        # Bouton overlay tours
+        self._btn_overlay = QPushButton("Overlay tours ▾")
+        self._btn_overlay.setFixedSize(150, 30)
+        self._btn_overlay.setStyleSheet(
+            "QPushButton{background:#1e3a5f;color:#ce93d8;border:1px solid #ce93d8;"
+            "border-radius:4px;font-size:11px;}"
+            "QPushButton:hover{background:#2a4f80;}"
+        )
+        self._btn_overlay.clicked.connect(self._show_overlay_menu)
+        top.addWidget(self._btn_overlay)
+        top.addSpacing(8)
+
         # Bouton toggle mode affichage
         self._btn_mode = QPushButton("Mode : Tour complet")
         self._btn_mode.setFixedSize(180, 30)
@@ -59,6 +72,12 @@ class DashboardWindow(QMainWindow):
         top.addWidget(self._btn_mode)
         top.addSpacing(12)
 
+        self._lbl_lap = QLabel("Tour —")
+        self._lbl_lap.setFont(QFont("Segoe UI", 14))
+        self._lbl_lap.setStyleSheet("color: #aaaaaa;")
+        top.addWidget(self._lbl_lap)
+        top.addSpacing(16)
+
         self._lbl_speed = QLabel("0 km/h")
         self._lbl_speed.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
         self._lbl_speed.setStyleSheet("color: #4fc3f7;")
@@ -70,6 +89,47 @@ class DashboardWindow(QMainWindow):
 
         self.statusBar().setStyleSheet(f"color: #aaa; background: {BG_MID};")
         self.statusBar().showMessage("En attente de donnees UDP sur le port 20777...")
+
+    def _show_overlay_menu(self):
+        menu = QMenu(self)
+        menu.setStyleSheet(
+            "QMenu{background:#16213e;color:#cccccc;border:1px solid #333355;}"
+            "QMenu::item{padding:4px 20px;}"
+            "QMenu::item:selected{background:#2a2a4a;}"
+            "QMenu::indicator{width:13px;height:13px;}"
+        )
+        laps = self._chart.lap_info()
+        best = self._chart.best_lap_num()
+        if not laps:
+            action = menu.addAction("Aucun tour enregistre")
+            action.setEnabled(False)
+        else:
+            for lap_num, lap_time_ms in laps:
+                label = f"Tour {lap_num}  {ms_to_str(lap_time_ms)}"
+                if lap_num == best:
+                    label = f"★ {label}"
+                action = menu.addAction(label)
+                action.setCheckable(True)
+                action.setChecked(lap_num in self._chart._visible)
+                action.setData(lap_num)
+            menu.addSeparator()
+            clear_action = menu.addAction("Tout effacer")
+            clear_action.setData("clear")
+
+        chosen = menu.exec(self._btn_overlay.mapToGlobal(
+            QPoint(0, self._btn_overlay.height())))
+        if chosen is None:
+            return
+        if chosen.data() == "clear":
+            self._chart.set_visible_laps(set())
+        elif isinstance(chosen.data(), int):
+            visible = set(self._chart._visible)
+            lap_num = chosen.data()
+            if lap_num in visible:
+                visible.discard(lap_num)
+            else:
+                visible.add(lap_num)
+            self._chart.set_visible_laps(visible)
 
     def _toggle_mode(self):
         if self._chart._mode == "full_lap":
@@ -104,6 +164,7 @@ class DashboardWindow(QMainWindow):
                 lap = packet.lapData[idx]
                 self._lap_ms = float(lap.currentLapTimeInMS)
                 self._lap_num = int(lap.currentLapNum)
+                self._last_lap_ms_completed = float(lap.lastLapTimeInMS)
 
     def _refresh(self):
         speed = self._speed
@@ -113,14 +174,18 @@ class DashboardWindow(QMainWindow):
         last_lap_ms = getattr(self, '_last_lap_ms',  lap_ms)
         last_lap_num = getattr(self, '_last_lap_num', lap_num)
 
-        # Reset si : nouveau numéro de tour OU lap_ms est reparti en arrière
-        # (restart manuel, recommencer le tour, flashback, etc.)
+        # Nouveau tour ou reset : sauvegarder le tour precedent puis reset
         if lap_num != last_lap_num or lap_ms < last_lap_ms - 500:
+            # Sauvegarder le tour qui vient de se terminer
+            if last_lap_num > 0 and self._last_lap_ms_completed > 0:
+                self._chart.commit_lap(
+                    last_lap_num, self._last_lap_ms_completed)
             self._chart.reset()
 
         self._last_lap_num = lap_num
         self._last_lap_ms = lap_ms
 
+        self._lbl_lap.setText(f"Tour {lap_num}")
         self._lbl_speed.setText(f"{speed} km/h")
         self._chart.append(float(speed), lap_ms)
         self.statusBar().showMessage(
