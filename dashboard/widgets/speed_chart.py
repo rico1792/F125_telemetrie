@@ -50,6 +50,7 @@ class SpeedChart(QWidget):
         self._rival_visible: set = set()
         self._rival_overlay_lines: dict = {}
         self._show_rival_cur: bool = False
+        self._legend = None
 
         fig = Figure(figsize=(8, 4), facecolor=BG_DARK)
         self._ax = fig.add_subplot(111, facecolor=BG_DARK)
@@ -62,10 +63,15 @@ class SpeedChart(QWidget):
             spine.set_edgecolor(GRID_COLOR)
 
         (self._cur_line,) = self._ax.plot(
-            [], [], color=COLOR_CURRENT, linewidth=2, zorder=10
+            [], [], color=COLOR_CURRENT, linewidth=2, zorder=10, label="Tour en cours"
         )
         (self._rival_cur_line,) = self._ax.plot(
-            [], [], color=COLOR_RIVAL, linewidth=2, linestyle="--", alpha=0.85, zorder=9, visible=False
+            [], [], color=COLOR_RIVAL, linewidth=2, linestyle="--", alpha=0.85, zorder=9, visible=False, label="Rival (en cours)"
+        )
+
+        self._legend = self._ax.legend(
+            loc="upper left", framealpha=0.25, facecolor=BG_DARK,
+            edgecolor=GRID_COLOR, labelcolor=TEXT_COLOR, fontsize=9
         )
 
         self._canvas = FigureCanvas(fig)
@@ -83,8 +89,14 @@ class SpeedChart(QWidget):
         self._redraw_current()
 
     def append(self, speed: float, lap_ms: float):
+        if lap_ms <= 0:
+            return  # pas encore franchi la ligne de depart
+        t = lap_ms / 1000.0
+        # Ignorer les points non monotones (paquets en desordre ou transitoires)
+        if self._cur_times and t < self._cur_times[-1]:
+            return
         self._cur_speeds.append(speed)
-        self._cur_times.append(lap_ms / 1000.0)
+        self._cur_times.append(t)
         self._redraw_current()
 
     def commit_lap(self, lap_num: int, lap_time_ms: float):
@@ -127,8 +139,12 @@ class SpeedChart(QWidget):
     # ── Rival ───────────────────────────────────────────────────────────
 
     def append_rival(self, speed: float, lap_ms: float):
+        t = lap_ms / 1000.0
+        # Ignorer les points non monotones
+        if self._rival_cur_times and t < self._rival_cur_times[-1]:
+            return
         self._rival_cur_speeds.append(speed)
-        self._rival_cur_times.append(lap_ms / 1000.0)
+        self._rival_cur_times.append(t)
         self._redraw_rival_cur()
 
     def reset_rival(self):
@@ -138,13 +154,14 @@ class SpeedChart(QWidget):
         self._rival_cur_line.set_ydata([])
         self._canvas.draw_idle()
 
-    def commit_rival_lap(self, lap_num: int, lap_time_ms: float):
+    def commit_rival_lap(self, lap_num: int, lap_time_ms: float, label: str = ""):
         if len(self._rival_cur_times) < 5:
             return None
         self._rival_laps[lap_num] = {
             "times":       list(self._rival_cur_times),
             "speeds":      list(self._rival_cur_speeds),
             "lap_time_ms": lap_time_ms,
+            "label":       label,
         }
         return lap_num
 
@@ -167,8 +184,10 @@ class SpeedChart(QWidget):
         )
 
     def rival_lap_info(self):
+        """Retourne [(lap_num, lap_time_ms, label), ...] triés par lap_num."""
         return sorted(
-            [(n, d["lap_time_ms"]) for n, d in self._rival_laps.items()],
+            [(n, d["lap_time_ms"], d.get("label", ""))
+             for n, d in self._rival_laps.items()],
             key=lambda x: x[0],
         )
 
@@ -189,13 +208,16 @@ class SpeedChart(QWidget):
             color = COLOR_BEST if lap_num == best else _RIVAL_COLORS[color_idx % len(
                 _RIVAL_COLORS)]
             color_idx += 1
+            lbl = rec.get("label") or f"Rival {lap_num}"
             (line,) = self._ax.plot(
                 rec["times"], rec["speeds"],
                 color=color, linewidth=1.5, alpha=0.75, zorder=5, linestyle="--",
+                label=lbl,
             )
             self._rival_overlay_lines[lap_num] = line
 
         self._canvas.draw_idle()
+        self._update_legend()
         self._redraw_current()
 
     def _redraw_rival_cur(self):
@@ -203,6 +225,7 @@ class SpeedChart(QWidget):
         if self._show_rival_cur and self._rival_cur_times:
             self._rival_cur_line.set_xdata(self._rival_cur_times)
             self._rival_cur_line.set_ydata(self._rival_cur_speeds)
+        self._update_legend()
         self._canvas.draw_idle()
 
     def _rebuild_overlays(self):
@@ -222,19 +245,46 @@ class SpeedChart(QWidget):
             color = COLOR_BEST if lap_num == best else _OVERLAY_COLORS[color_idx % len(
                 _OVERLAY_COLORS)]
             color_idx += 1
+            star = "\u2605 " if lap_num == best else ""
             (line,) = self._ax.plot(
                 rec["times"], rec["speeds"],
                 color=color, linewidth=1.5, alpha=0.75, zorder=5,
+                label=f"{star}Tour {lap_num}  {ms_to_str(rec['lap_time_ms'])}",
             )
             self._overlay_lines[lap_num] = line
 
         self._canvas.draw_idle()
+        self._update_legend()
         # Mettre a jour l'axe X apres changement des overlays
         self._redraw_current()
 
+    def _update_legend(self):
+        """Reconstruit la legende avec toutes les lignes visibles."""
+        lines, labels = [], []
+        if self._show_cur and self._cur_times:
+            lines.append(self._cur_line)
+            labels.append("Tour en cours")
+        if self._show_rival_cur and self._rival_cur_times:
+            lines.append(self._rival_cur_line)
+            labels.append("Rival (en cours)")
+        for line in self._overlay_lines.values():
+            lines.append(line)
+            labels.append(line.get_label())
+        for line in self._rival_overlay_lines.values():
+            lines.append(line)
+            labels.append(line.get_label())
+        if lines:
+            self._legend = self._ax.legend(
+                lines, labels,
+                loc="upper left", framealpha=0.25, facecolor=BG_DARK,
+                edgecolor=GRID_COLOR, labelcolor=TEXT_COLOR, fontsize=9
+            )
+        else:
+            if self._legend:
+                self._legend.remove()
+                self._legend = None
+
     def _max_reference_duration(self) -> float:
-        """Duree max parmi tous les tours completes (joueur + rival) + rival en cours si visible.
-        Sert a etendre l'axe X meme quand le tour en cours est court."""
         all_laps = list(self._laps.values()) + list(self._rival_laps.values())
         durations = [d["times"][-1] for d in all_laps if d["times"]]
         if self._show_rival_cur and self._rival_cur_times:
@@ -269,4 +319,5 @@ class SpeedChart(QWidget):
         self._cur_line.set_ydata(ys)
         self._cur_line.set_visible(self._show_cur)
         self._ax.set_xlim(x_min, x_max)
+        self._update_legend()
         self._canvas.draw_idle()

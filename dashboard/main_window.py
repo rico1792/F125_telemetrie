@@ -34,15 +34,22 @@ class DashboardWindow(QMainWindow):
         self._rival_lap_num = 0
         self._rival_last_lap_ms_completed = 0.0
         self._rival_position = 0  # position en piste du rival
+        self._rival_global_cycle = 1  # compteur global, ne se remet jamais à zéro
+        self._rival_saved_idx: dict = {}  # {nom -> cycle_key} déjà sauvegardés
+        # Si le ghost était déjà en plein cycle au démarrage, le premier cycle
+        # capturé est incomplet → on le saute. Ce flag passe à True quand on
+        # a vu le ghost repartir de t≈0 (premier vrai début de cycle propre).
+        self._rival_cycle_clean: bool = False
+        self._rival_first_lap_ms: float = -1.0  # valeur au premier paquet reçu
 
         # Time Trial : infos statiques du rival
-        self._tt_rival_lap_ms  = 0
-        self._tt_rival_s1_ms   = 0
-        self._tt_rival_s2_ms   = 0
-        self._tt_rival_s3_ms   = 0
-        self._tt_rival_valid   = False
-        self._tt_rival_name    = ""
-        self._tt_rival_team    = ""
+        self._tt_rival_lap_ms = 0
+        self._tt_rival_s1_ms = 0
+        self._tt_rival_s2_ms = 0
+        self._tt_rival_s3_ms = 0
+        self._tt_rival_valid = False
+        self._tt_rival_name = ""
+        self._tt_rival_team = ""
         self._tt_rival_assists = ""
 
         self._build_ui()
@@ -163,8 +170,9 @@ class DashboardWindow(QMainWindow):
 
         rival_laps = self._chart.rival_lap_info()
         best_rival = self._chart.best_rival_lap_num()
-        for lap_num, lap_time_ms in rival_laps:
-            label = f"Rival Tour {lap_num}  {ms_to_str(lap_time_ms)}"
+        for lap_num, lap_time_ms, lbl in rival_laps:
+            display = lbl if lbl else f"Rival Tour {lap_num}"
+            label = f"{display}  {ms_to_str(lap_time_ms)}"
             if lap_num == best_rival:
                 label = f"★ {label}"
             action = menu.addAction(label)
@@ -291,12 +299,18 @@ class DashboardWindow(QMainWindow):
         last_lap_num = getattr(self, '_last_lap_num', lap_num)
 
         # Nouveau tour ou reset joueur : sauvegarder et reset
-        if lap_num != last_lap_num or lap_ms < last_lap_ms - 500:
+        is_new_lap = (lap_num != last_lap_num)
+        is_restart = (not is_new_lap and lap_ms < last_lap_ms - 500)
+        if is_new_lap or is_restart:
             if last_lap_num > 0 and self._last_lap_ms_completed > 0:
                 self._chart.commit_lap(
                     last_lap_num, self._last_lap_ms_completed)
             self._chart.reset()
-            self._chart.reset_rival()
+            # Restart/flashback : reset rival et attendre un cycle propre
+            if is_restart:
+                self._chart.reset_rival()
+                self._rival_cycle_clean = False
+                self._rival_first_lap_ms = -1.0
 
         self._last_lap_num = lap_num
         self._last_lap_ms = lap_ms
@@ -307,15 +321,30 @@ class DashboardWindow(QMainWindow):
             last_rival_lap_ms = getattr(
                 self, '_last_rival_lap_ms', rival_lap_ms)
 
-            # Le ghost a boucle : on sauvegarde le cycle complet et on l'auto-affiche
+            # Memoriser la premiere valeur recue pour detecter un depart propre
+            if self._rival_first_lap_ms < 0:
+                self._rival_first_lap_ms = rival_lap_ms
+                # Si le ghost est deja loin dans son cycle au demarrage,
+                # le premier cycle sera incomplet -> on attend le suivant
+                self._rival_cycle_clean = (rival_lap_ms < 2000)
+
+            # Le ghost a boucle (rival_lap_ms repart a 0)
             if rival_lap_ms < last_rival_lap_ms - 500:
-                cycle_num = getattr(self, '_rival_cycle_num', 1)
-                saved_key = self._chart.commit_rival_lap(
-                    cycle_num, self._rival_last_lap_ms_completed)
-                if saved_key is not None:
-                    self._chart.set_visible_rival_laps(
-                        self._chart._rival_visible | {cycle_num})
-                self._rival_cycle_num = cycle_num + 1
+                if self._rival_cycle_clean:
+                    # Cycle propre : sauvegarder le premier tour complet du rival
+                    name = self._tt_rival_name or f"Rival {self._rival_idx}"
+                    if name not in self._rival_saved_idx:
+                        cycle_num = self._rival_global_cycle
+                        self._rival_saved_idx[name] = cycle_num
+                        self._rival_global_cycle += 1
+                        saved_key = self._chart.commit_rival_lap(
+                            cycle_num, self._rival_last_lap_ms_completed, label=name)
+                        if saved_key is not None:
+                            self._chart.set_visible_rival_laps(
+                                self._chart._rival_visible | {cycle_num})
+                else:
+                    # Premier cycle incomplet : on l'ignore et on marque propre
+                    self._rival_cycle_clean = True
                 self._chart.reset_rival()
 
             self._last_rival_lap_ms = rival_lap_ms
