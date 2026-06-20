@@ -134,11 +134,12 @@ class PacketSessionData:
 
 
 class CarTelemetryData:
+    # F1 26 : engineTemperature = uint8 (B) et non uint16 → 59 octets/voiture
+    _FMT = '<H f f f B b H B B H HHHH BBBB BBBB B ffff BBBB'
+    _SIZE = struct.calcsize(_FMT)  # 59
+
     def __init__(self, data: bytes):
-        # 60 octets par voiture (d’après spéc F1 25, résumé)
-        unpacked = struct.unpack(
-            '<H f f f B b H B B H HHHH BBBB BBBB H ffff BBBB', data[:60]
-        )
+        unpacked = struct.unpack(self._FMT, data[:self._SIZE])
         self.speed = unpacked[0]
         self.throttle = unpacked[1]
         self.steer = unpacked[2]
@@ -160,11 +161,12 @@ class CarTelemetryData:
 class PacketCarTelemetryData:
     def __init__(self, data: bytes):
         self.header = PacketHeader(data)
+        stride = CarTelemetryData._SIZE  # 59 octets (F1 26)
         self.carTelemetryData = [
-            CarTelemetryData(data[29 + i*60: 29 + (i+1)*60])
+            CarTelemetryData(data[29 + i*stride: 29 + (i+1)*stride])
             for i in range(MAX_NUM_CARS_IN_UDP_DATA)
         ]
-        offset = 29 + MAX_NUM_CARS_IN_UDP_DATA * 60
+        offset = 29 + MAX_NUM_CARS_IN_UDP_DATA * stride
         self.mfdPanelIndex = data[offset]
         self.mfdPanelIndexSecondaryPlayer = data[offset + 1]
         self.suggestedGear = struct.unpack(
