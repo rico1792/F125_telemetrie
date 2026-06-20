@@ -50,6 +50,10 @@ class SpeedChart(QWidget):
         self._rival_visible: set = set()
         self._rival_overlay_lines: dict = {}
         self._show_rival_cur: bool = False
+
+        # PB ghost (meilleur tour personnel)
+        self._pb_cur_times:  list = []
+        self._pb_cur_speeds: list = []
         self._legend = None
 
         fig = Figure(figsize=(8, 4), facecolor=BG_DARK)
@@ -153,6 +157,29 @@ class SpeedChart(QWidget):
         self._rival_cur_line.set_xdata([])
         self._rival_cur_line.set_ydata([])
         self._canvas.draw_idle()
+
+    def append_pb(self, speed: float, lap_ms: float):
+        t = lap_ms / 1000.0
+        if self._pb_cur_times and t < self._pb_cur_times[-1]:
+            return
+        self._pb_cur_speeds.append(speed)
+        self._pb_cur_times.append(t)
+
+    def reset_pb(self):
+        self._pb_cur_times.clear()
+        self._pb_cur_speeds.clear()
+
+    def commit_pb_lap(self, lap_time_ms: float) -> bool:
+        """Sauvegarde le PB ghost dans _rival_laps avec la cle 0 et le label fixe."""
+        if len(self._pb_cur_times) < 5:
+            return False
+        self._rival_laps[0] = {
+            "times":       list(self._pb_cur_times),
+            "speeds":      list(self._pb_cur_speeds),
+            "lap_time_ms": lap_time_ms,
+            "label":       "Meilleur perso",
+        }
+        return True
 
     def commit_rival_lap(self, lap_num: int, lap_time_ms: float, label: str = ""):
         if len(self._rival_cur_times) < 5:
