@@ -27,6 +27,14 @@ class DashboardWindow(QMainWindow):
         self._lap_num = 0
         self._last_lap_ms_completed = 0.0  # lastLapTimeInMS du dernier tour complet
 
+        # Rival (voiture directement devant)
+        self._rival_idx = -1
+        self._rival_speed = 0
+        self._rival_lap_ms = 0.0
+        self._rival_lap_num = 0
+        self._rival_last_lap_ms_completed = 0.0
+        self._rival_position = 0  # position en piste du rival
+
         self._build_ui()
         self._start_udp()
 
@@ -100,6 +108,14 @@ class DashboardWindow(QMainWindow):
         )
         laps = self._chart.lap_info()
         best = self._chart.best_lap_num()
+
+        # Tour en cours (joueur)
+        action_cur = menu.addAction("Tour en cours")
+        action_cur.setCheckable(True)
+        action_cur.setChecked(self._chart._show_cur)
+        action_cur.setData("cur")
+        menu.addSeparator()
+
         if not laps:
             action = menu.addAction("Aucun tour enregistre")
             action.setEnabled(False)
@@ -116,12 +132,45 @@ class DashboardWindow(QMainWindow):
             clear_action = menu.addAction("Tout effacer")
             clear_action.setData("clear")
 
+        # Section Rival
+        menu.addSeparator()
+        rival_header = menu.addAction("── Rival ──")
+        rival_header.setEnabled(False)
+
+        action_rival_cur = menu.addAction("Tour en cours (rival)")
+        action_rival_cur.setCheckable(True)
+        action_rival_cur.setChecked(self._chart._show_rival_cur)
+        action_rival_cur.setData("rival_cur")
+
+        rival_laps = self._chart.rival_lap_info()
+        best_rival = self._chart.best_rival_lap_num()
+        for lap_num, lap_time_ms in rival_laps:
+            label = f"Rival Tour {lap_num}  {ms_to_str(lap_time_ms)}"
+            if lap_num == best_rival:
+                label = f"★ {label}"
+            action = menu.addAction(label)
+            action.setCheckable(True)
+            action.setChecked(lap_num in self._chart._rival_visible)
+            action.setData(("rival", lap_num))
+
         chosen = menu.exec(self._btn_overlay.mapToGlobal(
             QPoint(0, self._btn_overlay.height())))
         if chosen is None:
             return
-        if chosen.data() == "clear":
+        if chosen.data() == "cur":
+            self._chart.set_cur_visible(not self._chart._show_cur)
+        elif chosen.data() == "clear":
             self._chart.set_visible_laps(set())
+        elif chosen.data() == "rival_cur":
+            self._chart.set_rival_cur_visible(not self._chart._show_rival_cur)
+        elif isinstance(chosen.data(), tuple) and chosen.data()[0] == "rival":
+            lap_num = chosen.data()[1]
+            visible = set(self._chart._rival_visible)
+            if lap_num in visible:
+                visible.discard(lap_num)
+            else:
+                visible.add(lap_num)
+            self._chart.set_visible_rival_laps(visible)
         elif isinstance(chosen.data(), int):
             visible = set(self._chart._visible)
             lap_num = chosen.data()
@@ -159,12 +208,38 @@ class DashboardWindow(QMainWindow):
             if isinstance(packet, PacketCarTelemetryData):
                 idx = packet.header.playerCarIndex
                 self._speed = packet.carTelemetryData[idx].speed
+                if self._rival_idx >= 0:
+                    self._rival_speed = packet.carTelemetryData[self._rival_idx].speed
             elif isinstance(packet, PacketLapData):
                 idx = packet.header.playerCarIndex
                 lap = packet.lapData[idx]
                 self._lap_ms = float(lap.currentLapTimeInMS)
                 self._lap_num = int(lap.currentLapNum)
                 self._last_lap_ms_completed = float(lap.lastLapTimeInMS)
+
+                # Trouver le rival :
+                # En Time Trial -> timeTrialRivalCarIdx (ghost rival)
+                # En course     -> voiture directement devant (carPosition - 1)
+                tt_rival = packet.timeTrialRivalCarIdx  # 255 si invalide
+                if tt_rival != 255 and tt_rival < len(packet.lapData):
+                    rival_idx = tt_rival
+                else:
+                    player_pos = int(lap.carPosition)
+                    rival_pos = (player_pos - 1) if player_pos > 1 else 2
+                    rival_idx = -1
+                    for i, ld in enumerate(packet.lapData):
+                        if i != idx and int(ld.carPosition) == rival_pos:
+                            rival_idx = i
+                            break
+
+                if rival_idx >= 0:
+                    self._rival_idx = rival_idx
+                    rlap = packet.lapData[rival_idx]
+                    self._rival_lap_ms = float(rlap.currentLapTimeInMS)
+                    self._rival_lap_num = int(rlap.currentLapNum)
+                    self._rival_last_lap_ms_completed = float(
+                        rlap.lastLapTimeInMS)
+                    self._rival_position = int(rlap.carPosition)
 
     def _refresh(self):
         speed = self._speed
@@ -185,11 +260,33 @@ class DashboardWindow(QMainWindow):
         self._last_lap_num = lap_num
         self._last_lap_ms = lap_ms
 
+        # --- Rival ---
+        rival_lap_ms = self._rival_lap_ms
+        rival_lap_num = self._rival_lap_num
+        last_rival_lap_ms = getattr(self, '_last_rival_lap_ms',  rival_lap_ms)
+        last_rival_lap_num = getattr(
+            self, '_last_rival_lap_num', rival_lap_num)
+
+        if rival_lap_num != last_rival_lap_num or rival_lap_ms < last_rival_lap_ms - 500:
+            if last_rival_lap_num > 0 and self._rival_last_lap_ms_completed > 0:
+                self._chart.commit_rival_lap(
+                    last_rival_lap_num, self._rival_last_lap_ms_completed)
+            self._chart.reset_rival()
+
+        self._last_rival_lap_ms = rival_lap_ms
+        self._last_rival_lap_num = rival_lap_num
+
+        if self._rival_idx >= 0:
+            self._chart.append_rival(float(self._rival_speed), rival_lap_ms)
+
         self._lbl_lap.setText(f"Tour {lap_num}")
         self._lbl_speed.setText(f"{speed} km/h")
         self._chart.append(float(speed), lap_ms)
+        rival_info = ""
+        if self._rival_idx >= 0:
+            rival_info = f"  |  Rival (P{self._rival_position}) : {self._rival_speed} km/h"
         self.statusBar().showMessage(
-            f"Vitesse : {speed} km/h  |  Tps tour : {lap_ms/1000:.3f} s  |  Tour : {lap_num}")
+            f"Vitesse : {speed} km/h  |  Tps tour : {lap_ms/1000:.3f} s  |  Tour : {lap_num}{rival_info}")
 
     def closeEvent(self, event):
         try:
