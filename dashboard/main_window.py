@@ -1,4 +1,4 @@
-﻿from f1_parser import parse_packet, PacketCarTelemetryData, PacketLapData
+﻿from f1_parser import parse_packet, PacketCarTelemetryData, PacketLapData, PacketTimeTrialData, PacketParticipantsData, TEAM_NAMES
 import socket
 import threading
 
@@ -7,7 +7,7 @@ from PyQt6.QtCore import QTimer, QPoint
 from PyQt6.QtGui import QFont
 
 from .constants import BG_DARK, BG_MID, TEXT_COLOR, UPDATE_MS
-from .widgets.speed_chart import SpeedChart, ms_to_str
+from .widgets.speed_chart import SpeedChart, ms_to_str, COLOR_RIVAL
 
 import sys
 import os
@@ -34,6 +34,16 @@ class DashboardWindow(QMainWindow):
         self._rival_lap_num = 0
         self._rival_last_lap_ms_completed = 0.0
         self._rival_position = 0  # position en piste du rival
+
+        # Time Trial : infos statiques du rival
+        self._tt_rival_lap_ms  = 0
+        self._tt_rival_s1_ms   = 0
+        self._tt_rival_s2_ms   = 0
+        self._tt_rival_s3_ms   = 0
+        self._tt_rival_valid   = False
+        self._tt_rival_name    = ""
+        self._tt_rival_team    = ""
+        self._tt_rival_assists = ""
 
         self._build_ui()
         self._start_udp()
@@ -94,6 +104,15 @@ class DashboardWindow(QMainWindow):
 
         self._chart = SpeedChart()
         root.addWidget(self._chart)
+
+        # Bandeau info rival Time Trial
+        self._lbl_rival_info = QLabel("")
+        self._lbl_rival_info.setFont(QFont("Segoe UI", 10))
+        self._lbl_rival_info.setStyleSheet(
+            f"color: {COLOR_RIVAL}; background: {BG_MID};"
+            "border-radius:4px; padding: 2px 8px;")
+        self._lbl_rival_info.setVisible(False)
+        root.addWidget(self._lbl_rival_info)
 
         self.statusBar().setStyleSheet(f"color: #aaa; background: {BG_MID};")
         self.statusBar().showMessage("En attente de donnees UDP sur le port 20777...")
@@ -210,6 +229,28 @@ class DashboardWindow(QMainWindow):
                 self._speed = packet.carTelemetryData[idx].speed
                 if self._rival_idx >= 0:
                     self._rival_speed = packet.carTelemetryData[self._rival_idx].speed
+            elif isinstance(packet, PacketTimeTrialData):
+                rd = packet.rivalDataSet
+                if rd.valid:
+                    self._tt_rival_lap_ms = rd.lapTimeInMS
+                    self._tt_rival_s1_ms = rd.sector1TimeInMS
+                    self._tt_rival_s2_ms = rd.sector2TimeInMS
+                    self._tt_rival_s3_ms = rd.sector3TimeInMS
+                    self._tt_rival_valid = True
+                    self._tt_rival_team = TEAM_NAMES.get(
+                        rd.teamId, f"Team {rd.teamId}")
+                    self._tt_rival_assists = (
+                        f"TC={'On' if rd.tractionControl else 'Off'}  "
+                        f"ABS={'On' if rd.antiLockBrakes else 'Off'}  "
+                        f"Gear={'Auto' if rd.gearboxAssist else 'Man'}"
+                    )
+            elif isinstance(packet, PacketParticipantsData):
+                rd_card_idx = getattr(self, '_tt_rival_card_idx', -1)
+                # Mettre à jour l'index du rival à partir du TimeTrialData
+                # On stocke déjà _rival_idx depuis PacketLapData
+                if self._rival_idx >= 0 and self._rival_idx < len(packet.participants):
+                    p = packet.participants[self._rival_idx]
+                    self._tt_rival_name = p.name
             elif isinstance(packet, PacketLapData):
                 idx = packet.header.playerCarIndex
                 lap = packet.lapData[idx]
@@ -249,39 +290,55 @@ class DashboardWindow(QMainWindow):
         last_lap_ms = getattr(self, '_last_lap_ms',  lap_ms)
         last_lap_num = getattr(self, '_last_lap_num', lap_num)
 
-        # Nouveau tour ou reset : sauvegarder le tour precedent puis reset
+        # Nouveau tour ou reset joueur : sauvegarder et reset
         if lap_num != last_lap_num or lap_ms < last_lap_ms - 500:
-            # Sauvegarder le tour qui vient de se terminer
             if last_lap_num > 0 and self._last_lap_ms_completed > 0:
                 self._chart.commit_lap(
                     last_lap_num, self._last_lap_ms_completed)
             self._chart.reset()
+            self._chart.reset_rival()
 
         self._last_lap_num = lap_num
         self._last_lap_ms = lap_ms
 
-        # --- Rival ---
-        rival_lap_ms = self._rival_lap_ms
-        rival_lap_num = self._rival_lap_num
-        last_rival_lap_ms = getattr(self, '_last_rival_lap_ms',  rival_lap_ms)
-        last_rival_lap_num = getattr(
-            self, '_last_rival_lap_num', rival_lap_num)
-
-        if rival_lap_num != last_rival_lap_num or rival_lap_ms < last_rival_lap_ms - 500:
-            if last_rival_lap_num > 0 and self._rival_last_lap_ms_completed > 0:
-                self._chart.commit_rival_lap(
-                    last_rival_lap_num, self._rival_last_lap_ms_completed)
-            self._chart.reset_rival()
-
-        self._last_rival_lap_ms = rival_lap_ms
-        self._last_rival_lap_num = rival_lap_num
-
+        # --- Rival (cycle independant) ---
         if self._rival_idx >= 0:
+            rival_lap_ms = self._rival_lap_ms
+            last_rival_lap_ms = getattr(
+                self, '_last_rival_lap_ms', rival_lap_ms)
+
+            # Le ghost a boucle : on sauvegarde le cycle complet et on l'auto-affiche
+            if rival_lap_ms < last_rival_lap_ms - 500:
+                cycle_num = getattr(self, '_rival_cycle_num', 1)
+                saved_key = self._chart.commit_rival_lap(
+                    cycle_num, self._rival_last_lap_ms_completed)
+                if saved_key is not None:
+                    self._chart.set_visible_rival_laps(
+                        self._chart._rival_visible | {cycle_num})
+                self._rival_cycle_num = cycle_num + 1
+                self._chart.reset_rival()
+
+            self._last_rival_lap_ms = rival_lap_ms
             self._chart.append_rival(float(self._rival_speed), rival_lap_ms)
 
         self._lbl_lap.setText(f"Tour {lap_num}")
         self._lbl_speed.setText(f"{speed} km/h")
         self._chart.append(float(speed), lap_ms)
+
+        # Bandeau rival Time Trial
+        if self._tt_rival_valid:
+            name_part = f"{self._tt_rival_name}  " if self._tt_rival_name else ""
+            team_part = f"({self._tt_rival_team})  " if self._tt_rival_team else ""
+            assists = getattr(self, '_tt_rival_assists', '')
+            s1 = ms_to_str(self._tt_rival_s1_ms)
+            s2 = ms_to_str(self._tt_rival_s2_ms)
+            s3 = ms_to_str(self._tt_rival_s3_ms)
+            lap = ms_to_str(self._tt_rival_lap_ms)
+            self._lbl_rival_info.setText(
+                f"Rival : {name_part}{team_part}—  "
+                f"Tour : {lap}    S1 : {s1}    S2 : {s2}    S3 : {s3}    {assists}")
+            self._lbl_rival_info.setVisible(True)
+
         rival_info = ""
         if self._rival_idx >= 0:
             rival_info = f"  |  Rival (P{self._rival_position}) : {self._rival_speed} km/h"

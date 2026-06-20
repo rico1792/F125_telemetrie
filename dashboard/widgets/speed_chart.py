@@ -140,13 +140,13 @@ class SpeedChart(QWidget):
 
     def commit_rival_lap(self, lap_num: int, lap_time_ms: float):
         if len(self._rival_cur_times) < 5:
-            return False
+            return None
         self._rival_laps[lap_num] = {
             "times":       list(self._rival_cur_times),
             "speeds":      list(self._rival_cur_speeds),
             "lap_time_ms": lap_time_ms,
         }
-        return True
+        return lap_num
 
     def set_rival_cur_visible(self, show: bool):
         self._show_rival_cur = show

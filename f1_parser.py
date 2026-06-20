@@ -363,6 +363,83 @@ class PacketCarTelemetry2Data:
 
 
 # --------------------------------------------------------------------------
+# PARTICIPANTS (paquet ID 4)
+# --------------------------------------------------------------------------
+
+# Table teamId -> nom équipe/chassis (F1 25/26)
+TEAM_NAMES: dict = {
+    0: "Mercedes",
+    1: "Ferrari",
+    2: "Red Bull Racing",
+    3: "Williams",
+    4: "Aston Martin",
+    5: "Alpine",
+    6: "RB",
+    7: "Haas",
+    8: "McLaren",
+    9: "Kick Sauber",
+    85: "Mercedes (My Team)",
+    86: "Ferrari (My Team)",
+    87: "Red Bull (My Team)",
+    88: "Williams (My Team)",
+    89: "Aston Martin (My Team)",
+    90: "Alpine (My Team)",
+    91: "RB (My Team)",
+    92: "Haas (My Team)",
+    93: "McLaren (My Team)",
+    94: "Kick Sauber (My Team)",
+    255: "My Team",
+    65535: "",
+}
+
+
+class ParticipantData:
+    """
+    F1 26 : 60 octets par participant
+    uint8 aiControlled, uint16 driverId, uint16 networkId, uint16 teamId,
+    uint8 myTeam, uint8 raceNumber, uint8 nationality,
+    char name[32], uint8 yourTelemetry, uint8 showOnlineNames,
+    uint16 techLevel, uint8 platform, uint8 numColours, uint8 liveryColours[12]
+    """
+    _FMT = '<B HHH BBB 32s BBH BB 12s'
+    _SIZE = struct.calcsize(_FMT)  # 60
+
+    def __init__(self, data: bytes):
+        unpacked = struct.unpack(self._FMT, data[:self._SIZE])
+        self.aiControlled = unpacked[0]
+        self.driverId = unpacked[1]
+        self.networkId = unpacked[2]
+        self.teamId = unpacked[3]
+        self.myTeam = unpacked[4]
+        self.raceNumber = unpacked[5]
+        self.nationality = unpacked[6]
+        raw_name: bytes = unpacked[7]
+        self.name: str = raw_name.rstrip(
+            b'\x00').decode('utf-8', errors='replace')
+        self.yourTelemetry = unpacked[8]
+        self.showOnlineNames = unpacked[9]
+        self.techLevel = unpacked[10]
+        self.platform = unpacked[11]
+        self.numColours = unpacked[12]
+
+
+class PacketParticipantsData:
+    """
+    Paquet ID 4 : 29 (header) + 1 (numActiveCars) + 24 * 60 = 1470 octets.
+    """
+
+    def __init__(self, data: bytes):
+        self.header = PacketHeader(data)
+        self.numActiveCars = data[29]
+        stride = ParticipantData._SIZE  # 60
+        base = 30
+        self.participants: List[ParticipantData] = [
+            ParticipantData(data[base + i * stride: base + (i + 1) * stride])
+            for i in range(MAX_NUM_CARS_IN_UDP_DATA)
+        ]
+
+
+# --------------------------------------------------------------------------
 # parse_packet : dispatcher
 # --------------------------------------------------------------------------
 
@@ -409,7 +486,10 @@ def parse_packet(data: bytes) -> Optional[object]:
         return None
 
     elif packet_id == PacketId.PARTICIPANTS:
-        # À implémenter si besoin
+        try:
+            return PacketParticipantsData(data)
+        except struct.error as e:
+            print(f"[PARTICIPANTS struct.error] len={len(data)} -> {e}")
         return None
 
     elif packet_id == PacketId.CAR_SETUPS:
