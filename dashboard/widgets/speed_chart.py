@@ -1,7 +1,15 @@
-﻿"""
-speed_chart.py - Graphique vitesse F1 26.
-- Tour en cours : ligne bleue vive
-- Tours en overlay (selectionnes par l'utilisateur) : lignes colorees
+"""
+speed_chart.py - Widget graphique des vitesses pour telemetrie F1.
+
+Ce module fournit la classe `SpeedChart`, un widget PyQt6 qui affiche
+les vitesses en km/h sur le temps d'un tour. Le widget peut afficher :
+- le tour en cours (ligne principale, mise a jour en temps reel),
+- des tours "overlay" (historique ou rivaux) pour comparaison,
+- un "ghost" PB (meilleur personnel) et des rivaux eventuels.
+
+Les commentaires dans ce fichier sont en francais et cherchent a
+expliquer les structures de donnees, la logique de dessin, et les
+decisions pour la mise a jour efficace du graphe.
 """
 from ..constants import BG_DARK, GRID_COLOR, TEXT_COLOR
 from PyQt6.QtWidgets import QWidget, QVBoxLayout
@@ -11,19 +19,28 @@ import matplotlib
 matplotlib.use("QtAgg")
 
 
+# Durée (en secondes) de la fenetre lorsque le mode n'est pas "full_lap".
 WINDOW_S = 30
 
+# Palette de couleurs pour les overlays de tours du joueur (selectionnes).
 _OVERLAY_COLORS = [
     "#ff8a65", "#ce93d8", "#a5d6a7", "#ffd54f",
     "#ef9a9a", "#80cbc4", "#ffab40", "#b39ddb",
 ]
-COLOR_CURRENT = "#4fc3f7"
-COLOR_BEST = "#ffd54f"
-COLOR_RIVAL = "#ff8a65"
+
+# Couleurs utilises pour les differents roles sur le graphe.
+COLOR_CURRENT = "#4fc3f7"  # tour en cours (bleu clair)
+COLOR_BEST = "#ffd54f"     # couleur pour le meilleur tour
+COLOR_RIVAL = "#ff8a65"    # couleur par defaut pour un rival
 _RIVAL_COLORS = ["#ff8a65", "#ef9a9a", "#ffab40", "#ffcc80"]
 
 
 def ms_to_str(ms: float) -> str:
+    """Convertit une duree en millisecondes en string lisible.
+
+    Format renvoyé : M:SS.mmm (minutes:secondes.millisecondes). Si la
+    valeur est <= 0, renvoie une representation vide/placeholder.
+    """
     if ms <= 0:
         return "--:--.---"
     total_s, ms_part = divmod(int(ms), 1000)
@@ -32,18 +49,41 @@ def ms_to_str(ms: float) -> str:
 
 
 class SpeedChart(QWidget):
+    """Widget PyQt qui affiche l'evolution de la vitesse au cours d'un tour.
+
+    Attributs internes principaux :
+    - _cur_times / _cur_speeds : donnees temporelles du tour en cours (listes)
+    - _laps : dictionnaire {lap_num: {times, speeds, lap_time_ms, label?}}
+    - _visible : ensemble de lap_num a afficher en overlay
+    - _overlay_lines : mapping lap_num -> objet Line2D de matplotlib pour suppression
+
+    On maintient en parallele des structures pour un "rival" et un "pb ghost"
+    afin de permettre comparaison cote-a-cote tout en gardant une logique de
+    mise a jour independante (pour redraw plus efficiente).
+    """
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        # Mode d'affichage : 'full_lap' montre tout le tour, autre valeur montre
+        # une fenetre glissante de taille WINDOW_S.
         self._mode = "full_lap"
-        self._cur_times:  list = []
-        self._cur_speeds: list = []
+
+        # Donnees du tour en cours
+        self._cur_times:  list = []  # temps en secondes depuis debut de tour
+        self._cur_speeds: list = []  # vitesses correspondantes en km/h
+
+        # Laps historiques du JOUEUR : {lap_num: {times, speeds, lap_time_ms}}
         self._laps: dict = {}
+
+        # Ensemble de tours visibles (overlay) et references vers leurs lignes
         self._visible: set = set()
         self._overlay_lines: dict = {}
+
+        # Afficher ou non la ligne du tour en cours
         self._show_cur: bool = True
 
-        # Rival
+        # ----- Structures pour le RIVAL (ghost/rival playback) -----
         self._rival_cur_times:  list = []
         self._rival_cur_speeds: list = []
         self._rival_laps: dict = {}
@@ -51,11 +91,12 @@ class SpeedChart(QWidget):
         self._rival_overlay_lines: dict = {}
         self._show_rival_cur: bool = False
 
-        # PB ghost (meilleur tour personnel)
+        # ----- PB ghost (meilleur perso) -----
         self._pb_cur_times:  list = []
         self._pb_cur_speeds: list = []
         self._legend = None
 
+        # Setup matplotlib figure / axes avec theme sombre
         fig = Figure(figsize=(8, 4), facecolor=BG_DARK)
         self._ax = fig.add_subplot(111, facecolor=BG_DARK)
         self._ax.set_ylim(0, 380)
@@ -66,18 +107,23 @@ class SpeedChart(QWidget):
         for spine in self._ax.spines.values():
             spine.set_edgecolor(GRID_COLOR)
 
+        # Ligne principale pour le tour courant
         (self._cur_line,) = self._ax.plot(
             [], [], color=COLOR_CURRENT, linewidth=2, zorder=10, label="Tour en cours"
         )
+
+        # Ligne pour le rival (par defaut invisible jusqu'a ce qu'on active)
         (self._rival_cur_line,) = self._ax.plot(
             [], [], color=COLOR_RIVAL, linewidth=2, linestyle="--", alpha=0.85, zorder=9, visible=False, label="Rival (en cours)"
         )
 
+        # Legende initiale (sera reconstruite dynamiquement)
         self._legend = self._ax.legend(
             loc="upper left", framealpha=0.25, facecolor=BG_DARK,
             edgecolor=GRID_COLOR, labelcolor=TEXT_COLOR, fontsize=9
         )
 
+        # Canvas PyQt pour l'affichage
         self._canvas = FigureCanvas(fig)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -89,6 +135,10 @@ class SpeedChart(QWidget):
         self._canvas.draw_idle()
 
     def set_mode(self, mode: str):
+        """Change le mode d'affichage et force le redraw du tour courant.
+
+        `mode` attendu: 'full_lap' | autre -> fenetre glissante.
+        """
         self._mode = mode
         self._redraw_current()
 
@@ -104,6 +154,11 @@ class SpeedChart(QWidget):
         self._redraw_current()
 
     def commit_lap(self, lap_num: int, lap_time_ms: float):
+        """Verrouille le tour en cours dans `_laps` sous cle `lap_num`.
+
+        On exige au moins 5 points pour eviter d'enregistrer des tours
+        incomplets (par ex. reset immediat). Retourne True si sauvegarde.
+        """
         if len(self._cur_times) < 5:
             return False
         self._laps[lap_num] = {
@@ -114,14 +169,17 @@ class SpeedChart(QWidget):
         return True
 
     def set_visible_laps(self, lap_nums: set):
+        # Defini l'ensemble des tours du JOUEUR a afficher en overlay.
         self._visible = set(lap_nums)
         self._rebuild_overlays()
 
     def reset(self):
+        """Reinitialise les donnees du tour en cours (ne touche pas aux overlays)."""
         self._cur_times.clear()
         self._cur_speeds.clear()
         self._cur_line.set_xdata([])
         self._cur_line.set_ydata([])
+        # On recentre l'axe X sur une plage minimale
         self._ax.set_xlim(0, 1)
         self._canvas.draw_idle()
 
@@ -172,7 +230,11 @@ class SpeedChart(QWidget):
         self._pb_cur_speeds.clear()
 
     def commit_pb_lap(self, lap_time_ms: float) -> bool:
-        """Sauvegarde le PB ghost dans _rival_laps avec la cle 0 et le label fixe."""
+        """Enregistre le PB courant comme un "ghost" rival sous la cle 0.
+
+        Cela permet de reutiliser la logique d'affichage des rivaux pour
+        montrer le meilleur tour personnel cote-a-cote.
+        """
         if len(self._pb_cur_times) < 5:
             return False
         self._rival_laps[0] = {
@@ -184,7 +246,11 @@ class SpeedChart(QWidget):
         return True
 
     def commit_pb_from_player_lap(self, lap_time_ms: float) -> bool:
-        """Sauvegarde le tour courant du JOUEUR comme PB ghost (donnees exactes)."""
+        """Enregistre le tour courant du JOUEUR comme PB si meilleur.
+
+        Verifie si la valeur est meilleure que l'existant (cle 0) avant
+        d'ecraser. Retourne True si sauvegarde effectuee.
+        """
         if len(self._cur_times) < 5:
             return False
         existing = self._rival_laps.get(0)
@@ -236,11 +302,13 @@ class SpeedChart(QWidget):
         )
 
     def _rebuild_rival_overlays(self):
+        # Supprime les lignes de overlay qui ne sont plus selectionnees
         for lap_num in list(self._rival_overlay_lines):
             if lap_num not in self._rival_visible:
                 self._rival_overlay_lines[lap_num].remove()
                 del self._rival_overlay_lines[lap_num]
 
+        # Reconstruit les nouvelles lignes de overlay pour les rivaux visibles
         best = self.best_rival_lap_num()
         color_idx = 0
         for lap_num in sorted(self._rival_visible):
@@ -260,6 +328,7 @@ class SpeedChart(QWidget):
             )
             self._rival_overlay_lines[lap_num] = line
 
+        # Rafraichir l'affichage et legende
         self._canvas.draw_idle()
         self._update_legend()
         self._redraw_current()
@@ -273,6 +342,7 @@ class SpeedChart(QWidget):
         self._canvas.draw_idle()
 
     def _rebuild_overlays(self):
+        # Meme logique que pour les rivaux, appliquee aux tours du JOUEUR
         for lap_num in list(self._overlay_lines):
             if lap_num not in self._visible:
                 self._overlay_lines[lap_num].remove()
@@ -303,7 +373,12 @@ class SpeedChart(QWidget):
         self._redraw_current()
 
     def _update_legend(self):
-        """Reconstruit la legende avec toutes les lignes visibles."""
+        """Reconstruit dynamiquement la legende selon les courbes visibles.
+
+        On reconstruit plutot que de simplement afficher/masquer la legende
+        pour garder l'ordre d'affichage et les labels coherents avec les
+        lignes actuellement tracees.
+        """
         lines, labels = [], []
         if self._show_cur and self._cur_times:
             lines.append(self._cur_line)
@@ -329,6 +404,9 @@ class SpeedChart(QWidget):
                 self._legend = None
 
     def _max_reference_duration(self) -> float:
+        # Calcule la duree maximale parmi les tours de reference et le rival en
+        # cours; utilisee pour dimensionner l'axe X quand on montre le tour
+        # en entier pour comparaison cote-a-cote.
         all_laps = list(self._laps.values()) + list(self._rival_laps.values())
         durations = [d["times"][-1] for d in all_laps if d["times"]]
         if self._show_rival_cur and self._rival_cur_times:
@@ -336,6 +414,7 @@ class SpeedChart(QWidget):
         return max(durations, default=0.0)
 
     def _redraw_current(self):
+        # Redessine la ligne du tour courant selon le mode choisi.
         if not self._cur_times:
             # Meme sans data en cours, on maintient l'axe sur la duree de reference
             ref = self._max_reference_duration()
@@ -345,12 +424,14 @@ class SpeedChart(QWidget):
             return
 
         if self._mode == "full_lap":
+            # Affiche tout le tour depuis 0 jusqu'a la progression actuelle
             xs, ys = self._cur_times, self._cur_speeds
             # Axe X = max entre la progression actuelle et le tour de reference le plus long
             x_max = max(self._cur_times[-1],
                         self._max_reference_duration(), 1.0)
             x_min = 0.0
         else:
+            # Mode fenetre glissante: ne garde que les points dans la fenetre
             t_end = self._cur_times[-1]
             t_start = max(0.0, t_end - WINDOW_S)
             pairs = [(t, s) for t, s in zip(self._cur_times, self._cur_speeds)
@@ -359,6 +440,7 @@ class SpeedChart(QWidget):
             ys = [p[1] for p in pairs]
             x_min, x_max = t_start, max(t_end, t_start + 1.0)
 
+        # Met a jour les donnees de la courbe et force un redraw asynchrone
         self._cur_line.set_xdata(xs)
         self._cur_line.set_ydata(ys)
         self._cur_line.set_visible(self._show_cur)

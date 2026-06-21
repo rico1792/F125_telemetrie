@@ -18,30 +18,31 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 class DashboardWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        # --- CONFIGURATION DE LA FENÊTRE PRINCIPALE ---
         self.setWindowTitle("F1 26 - Telemetrie")
         self.resize(900, 420)
         self.setStyleSheet(
             f"background-color: {BG_DARK}; color: {TEXT_COLOR};")
 
-        self._speed = 0
-        self._lap_ms = 0.0
-        self._lap_num = 0
-        self._last_lap_ms_completed = 0.0  # lastLapTimeInMS du dernier tour complet
+        # --- VARIABLES DU JOUEUR ---
+        self._speed = 0                     # vitesse instantanée du joueur
+        self._lap_ms = 0.0                  # temps du tour en cours (ms)
+        self._lap_num = 0                   # numéro du tour en cours
+        self._last_lap_ms_completed = 0.0   # temps du dernier tour complété
 
-        # Rival ghost
-        self._rival_idx = -1
-        self._rival_speed = 0
-        self._rival_lap_ms = 0.0
+        # --- VARIABLES DU RIVAL (ghost Time Trial ou voiture devant) ---
+        self._rival_idx = -1                # index du rival dans les paquets F1
+        self._rival_speed = 0               # vitesse instantanée du rival
+        self._rival_lap_ms = 0.0            # temps du tour en cours du rival
         self._rival_last_lap_ms_completed = 0.0
-        self._rival_position = 0
-        self._rival_global_cycle = 1
-        self._rival_saved_idx: dict = {}  # {nom -> cycle_key}
-        # ghost_t au moment où le joueur a démarré
+        self._rival_position = 0            # position en course du rival
+        self._rival_global_cycle = 1        # cycle fantôme (pour wrap)
+        self._rival_saved_idx: dict = {}    # stockage des tours fantômes
         self._rival_time_offset: float = -1.0
-        # durée du tour du rival (pour wrap)
         self._rival_lap_duration: float = 0.0
 
-        # PB ghost (meilleur tour personnel)
+        # --- VARIABLES DU PB (ghost du meilleur tour personnel) ---
         self._pb_idx = -1
         self._pb_speed = 0
         self._pb_lap_ms = 0.0
@@ -50,7 +51,7 @@ class DashboardWindow(QMainWindow):
         self._pb_time_offset: float = -1.0
         self._pb_lap_duration: float = 0.0
 
-        # Time Trial : infos statiques du rival
+        # --- INFORMATIONS STATIQUES DU RIVAL EN TIME TRIAL ---
         self._tt_rival_lap_ms = 0
         self._tt_rival_s1_ms = 0
         self._tt_rival_s2_ms = 0
@@ -60,78 +61,17 @@ class DashboardWindow(QMainWindow):
         self._tt_rival_team = ""
         self._tt_rival_assists = ""
 
+        # Construction de l’interface graphique
+        # Construction de l’interface graphique
         self._build_ui()
+
+        # Démarrage du thread UDP qui écoute les paquets F1 22/23/24/25/26
         self._start_udp()
 
+        # Timer UI : rafraîchit l’affichage toutes les UPDATE_MS ms
         self._timer = QTimer(self)
         self._timer.timeout.connect(self._refresh)
         self._timer.start(UPDATE_MS)
-
-    def _build_ui(self):
-        central = QWidget()
-        self.setCentralWidget(central)
-        root = QVBoxLayout(central)
-        root.setContentsMargins(16, 16, 16, 16)
-        root.setSpacing(10)
-
-        top = QHBoxLayout()
-        title = QLabel("F1 26 - Vitesse")
-        title.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
-        title.setStyleSheet("color: #ffffff;")
-        top.addWidget(title)
-        top.addStretch()
-
-        # Bouton overlay tours
-        self._btn_overlay = QPushButton("Overlay tours ▾")
-        self._btn_overlay.setFixedSize(150, 30)
-        self._btn_overlay.setStyleSheet(
-            "QPushButton{background:#1e3a5f;color:#ce93d8;border:1px solid #ce93d8;"
-            "border-radius:4px;font-size:11px;}"
-            "QPushButton:hover{background:#2a4f80;}"
-        )
-        self._btn_overlay.clicked.connect(self._show_overlay_menu)
-        top.addWidget(self._btn_overlay)
-        top.addSpacing(8)
-
-        # Bouton toggle mode affichage
-        self._btn_mode = QPushButton("Mode : Tour complet")
-        self._btn_mode.setFixedSize(180, 30)
-        self._btn_mode.setStyleSheet(
-            "QPushButton{background:#1e3a5f;color:#4fc3f7;border:1px solid #4fc3f7;"
-            "border-radius:4px;font-size:11px;}"
-            "QPushButton:hover{background:#2a4f80;}"
-        )
-        self._btn_mode.clicked.connect(self._toggle_mode)
-        top.addWidget(self._btn_mode)
-        top.addSpacing(12)
-
-        self._lbl_lap = QLabel("Tour —")
-        self._lbl_lap.setFont(QFont("Segoe UI", 14))
-        self._lbl_lap.setStyleSheet("color: #aaaaaa;")
-        top.addWidget(self._lbl_lap)
-        top.addSpacing(16)
-
-        self._lbl_speed = QLabel("0 km/h")
-        self._lbl_speed.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
-        self._lbl_speed.setStyleSheet("color: #4fc3f7;")
-        top.addWidget(self._lbl_speed)
-        root.addLayout(top)
-
-        self._chart = SpeedChart()
-        root.addWidget(self._chart)
-
-        # Bandeau info rival Time Trial
-        self._lbl_rival_info = QLabel("")
-        self._lbl_rival_info.setFont(QFont("Segoe UI", 10))
-        self._lbl_rival_info.setStyleSheet(
-            f"color: {COLOR_RIVAL}; background: {BG_MID};"
-            "border-radius:4px; padding: 2px 8px;")
-        self._lbl_rival_info.setVisible(False)
-        root.addWidget(self._lbl_rival_info)
-
-        self.statusBar().setStyleSheet(f"color: #aaa; background: {BG_MID};")
-        self.statusBar().showMessage("En attente de donnees UDP sur le port 20777...")
-
     def _show_overlay_menu(self):
         menu = QMenu(self)
         menu.setStyleSheet(
@@ -208,19 +148,98 @@ class DashboardWindow(QMainWindow):
                 visible.add(lap_num)
             self._chart.set_visible_laps(visible)
 
-    def _toggle_mode(self):
-        if self._chart._mode == "full_lap":
-            self._chart.set_mode("window")
-            self._btn_mode.setText("Mode : Fenetre 30s")
-        else:
-            self._chart.set_mode("full_lap")
-            self._btn_mode.setText("Mode : Tour complet")
+    def _build_ui(self):
+        central = QWidget()
+        self.setCentralWidget(central)
+        root = QVBoxLayout(central)
+        root.setContentsMargins(16, 16, 16, 16)
+        root.setSpacing(10)
+
+        # --- BARRE DU HAUT ---
+        top = QHBoxLayout()
+
+        # Titre
+        title = QLabel("F1 26 - Vitesse")
+        title.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
+        title.setStyleSheet("color: #ffffff;")
+        top.addWidget(title)
+        top.addStretch()
+
+        # --- BOUTON : MENU DES TOURS (overlay) ---
+        # Permet d'afficher/masquer les tours enregistrés dans le graphique
+        self._btn_overlay = QPushButton("Overlay tours ▾")
+        self._btn_overlay.setFixedSize(150, 30)
+        self._btn_overlay.setStyleSheet(
+            "QPushButton{background:#1e3a5f;color:#ce93d8;border:1px solid #ce93d8;"
+            "border-radius:4px;font-size:11px;}"
+            "QPushButton:hover{background:#2a4f80;}"
+        )
+        self._btn_overlay.clicked.connect(self._show_overlay_menu)
+        top.addWidget(self._btn_overlay)
+        top.addSpacing(8)
+
+        # --- BOUTON : MODE D’AFFICHAGE ---
+        # Mode 1 : Tour complet
+        # Mode 2 : Fenêtre glissante de 30 secondes
+        self._btn_mode = QPushButton("Mode : Tour complet")
+        self._btn_mode.setFixedSize(180, 30)
+        self._btn_mode.setStyleSheet(
+            "QPushButton{background:#1e3a5f;color:#4fc3f7;border:1px solid #4fc3f7;"
+            "border-radius:4px;font-size:11px;}"
+            "QPushButton:hover{background:#2a4f80;}"
+        )
+        self._btn_mode.clicked.connect(self._toggle_mode)
+        top.addWidget(self._btn_mode)
+        top.addSpacing(12)
+
+        # --- LABEL : NUMÉRO DE TOUR ---
+        self._lbl_lap = QLabel("Tour —")
+        self._lbl_lap.setFont(QFont("Segoe UI", 14))
+        self._lbl_lap.setStyleSheet("color: #aaaaaa;")
+        top.addWidget(self._lbl_lap)
+        top.addSpacing(16)
+
+        # --- LABEL : VITESSE ---
+        self._lbl_speed = QLabel("0 km/h")
+        self._lbl_speed.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
+        self._lbl_speed.setStyleSheet("color: #4fc3f7;")
+        top.addWidget(self._lbl_speed)
+
+        root.addLayout(top)
+
+        # --- GRAPHIQUE DE VITESSE ---
+        # SpeedChart gère :
+        # - l’enregistrement des tours
+        # - les overlays
+        # - les ghosts
+        # - le mode fenêtre / tour complet
+        self._chart = SpeedChart()
+        root.addWidget(self._chart)
+
+        # --- BANDEAU INFO RIVAL TIME TRIAL ---
+        self._lbl_rival_info = QLabel("")
+        self._lbl_rival_info.setFont(QFont("Segoe UI", 10))
+        self._lbl_rival_info.setStyleSheet(
+            f"color: {COLOR_RIVAL}; background: {BG_MID};"
+            "border-radius:4px; padding: 2px 8px;"
+        )
+        self._lbl_rival_info.setVisible(False)
+        root.addWidget(self._lbl_rival_info)
+
+        # --- BARRE DE STATUT ---
+        self.statusBar().setStyleSheet(
+            f"color: #aaa; background: {BG_MID};")
+        self.statusBar().showMessage("En attente de donnees UDP sur le port 20777...")
 
     def _start_udp(self):
+        # Création du socket UDP
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1_048_576)
+        self._sock.setsockopt(
+            socket.SOL_SOCKET, socket.SO_RCVBUF, 1_048_576)
         self._sock.bind(("0.0.0.0", 20777))
         self._sock.settimeout(1.0)
+
+        # Thread séparé pour ne pas bloquer l’UI
         threading.Thread(target=self._udp_loop,
                          daemon=True, name="udp").start()
 
@@ -232,43 +251,192 @@ class DashboardWindow(QMainWindow):
                 continue
             except Exception:
                 break
+
+            # Décodage du paquet F1
             packet = parse_packet(data)
+
             if isinstance(packet, PacketCarTelemetryData):
                 idx = packet.header.playerCarIndex
                 self._speed = packet.carTelemetryData[idx].speed
+
+                # Si un PB ghost existe, on lit aussi sa vitesse
                 if self._pb_idx >= 0:
                     self._pb_speed = packet.carTelemetryData[self._pb_idx].speed
 
             elif isinstance(packet, PacketMotionData):
-                # Vitesse rival depuis velocites 3D (fiable pour les ghosts)
                 if self._rival_idx >= 0:
                     m = packet.carMotionData[self._rival_idx]
-                    spd = int(math.sqrt(m.worldVelocityX**2 +
-                              m.worldVelocityY**2 + m.worldVelocityZ**2) * 3.6)
-                    # Ignorer les artefacts de vitesse impossibles (>380 km/h)
+
+                    # Vitesse calculée via vecteur 3D → fiable pour les ghosts
+                    spd = int(math.sqrt(
+                        m.worldVelocityX**2 +
+                        m.worldVelocityY**2 +
+                        m.worldVelocityZ**2
+                    ) * 3.6)
+
+                    # Filtre anti-artefacts
                     if spd <= 380:
                         self._rival_speed = spd
+
 
             elif isinstance(packet, PacketTimeTrialData):
                 rd = packet.rivalDataSet
                 if rd.valid:
+                    # Temps du rival
                     self._tt_rival_lap_ms = rd.lapTimeInMS
                     self._tt_rival_s1_ms = rd.sector1TimeInMS
                     self._tt_rival_s2_ms = rd.sector2TimeInMS
                     self._tt_rival_s3_ms = rd.sector3TimeInMS
                     self._tt_rival_valid = True
-                    self._tt_rival_team = TEAM_NAMES.get(
-                        rd.teamId, f"Team {rd.teamId}")
+
+                    # Nom d’équipe
+                    self._tt_rival_team = TEAM_NAMES.get(rd.teamId, f"Team {rd.teamId}")
+
+                    # Aides activées
                     self._tt_rival_assists = (
                         f"TC={'On' if rd.tractionControl else 'Off'}  "
                         f"ABS={'On' if rd.antiLockBrakes else 'Off'}  "
                         f"Gear={'Auto' if rd.gearboxAssist else 'Man'}"
                     )
+
+                    # Durée du tour du ghost rival
                     self._rival_lap_duration = float(rd.lapTimeInMS)
+
+                # PB Time Trial
                 pb = packet.personalBestDataSet
                 if pb.valid:
                     self._tt_pb_lap_ms = pb.lapTimeInMS
                     self._pb_lap_duration = float(pb.lapTimeInMS)
+
+            elif isinstance(packet, PacketParticipantsData):
+                rd_card_idx = getattr(self, '_tt_rival_card_idx', -1)
+                # Mettre à jour l'index du rival à partir du TimeTrialData
+                # On stocke déjà _rival_idx depuis PacketLapData
+                if self._rival_idx >= 0 and self._rival_idx < len(packet.participants):
+                    p = packet.participants[self._rival_idx]
+                    self._tt_rival_name = p.name
+            elif isinstance(packet, PacketLapData):
+                idx = packet.header.playerCarIndex
+                lap = packet.lapData[idx]
+                self._lap_ms = float(lap.currentLapTimeInMS)
+                self._lap_num = int(lap.currentLapNum)
+                self._last_lap_ms_completed = float(lap.lastLapTimeInMS)
+
+                # Trouver le rival :
+                # En Time Trial -> timeTrialRivalCarIdx (ghost rival)
+                # En course     -> voiture directement devant (carPosition - 1)
+                tt_rival = packet.timeTrialRivalCarIdx  # 255 si invalide
+                if tt_rival != 255 and tt_rival < len(packet.lapData):
+                    rival_idx = tt_rival
+                else:
+                    player_pos = int(lap.carPosition)
+                    rival_pos = (player_pos - 1) if player_pos > 1 else 2
+                    rival_idx = -1
+                    for i, ld in enumerate(packet.lapData):
+                        if i != idx and int(ld.carPosition) == rival_pos:
+                            rival_idx = i
+                            break
+
+                if rival_idx >= 0:
+                    self._rival_idx = rival_idx
+                    rlap = packet.lapData[rival_idx]
+                    self._rival_lap_ms = float(rlap.currentLapTimeInMS)
+                    self._rival_last_lap_ms_completed = float(
+                        rlap.lastLapTimeInMS)
+                    self._rival_position = int(rlap.carPosition)
+
+                # PB ghost index
+                tt_pb = packet.timeTrialPBCarIdx
+                if tt_pb != 255 and tt_pb < len(packet.lapData):
+                    self._pb_idx = tt_pb
+                    self._pb_lap_ms = float(
+                        packet.lapData[tt_pb].currentLapTimeInMS)
+
+    def _toggle_mode(self):
+        if self._chart._mode == "full_lap":
+            self._chart.set_mode("window")
+            self._btn_mode.setText("Mode : Fenetre 30s")
+        else:
+            self._chart.set_mode("full_lap")
+            self._btn_mode.setText("Mode : Tour complet")
+
+        def _start_udp(self):
+            # Création du socket UDP
+            self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self._sock.setsockopt(
+                socket.SOL_SOCKET, socket.SO_RCVBUF, 1_048_576)
+            self._sock.bind(("0.0.0.0", 20777))
+            self._sock.settimeout(1.0)
+
+            # Thread séparé pour ne pas bloquer l’UI
+            threading.Thread(target=self._udp_loop,
+                             daemon=True, name="udp").start()
+
+        def _udp_loop(self):
+            while True:
+                try:
+                    data, _ = self._sock.recvfrom(4096)
+                except socket.timeout:
+                    continue
+                except Exception:
+                    break
+
+                # Décodage du paquet F1
+                packet = parse_packet(data)
+
+            if isinstance(packet, PacketCarTelemetryData):
+                idx = packet.header.playerCarIndex
+                self._speed = packet.carTelemetryData[idx].speed
+
+                # Si un PB ghost existe, on lit aussi sa vitesse
+                if self._pb_idx >= 0:
+                    self._pb_speed = packet.carTelemetryData[self._pb_idx].speed
+
+                elif isinstance(packet, PacketMotionData):
+                    if self._rival_idx >= 0:
+                        m = packet.carMotionData[self._rival_idx]
+
+                        # Vitesse calculée via vecteur 3D → fiable pour les ghosts
+                        spd = int(math.sqrt(
+                            m.worldVelocityX**2 +
+                            m.worldVelocityY**2 +
+                            m.worldVelocityZ**2
+                        ) * 3.6)
+
+                        # Filtre anti-artefacts
+                        if spd <= 380:
+                            self._rival_speed = spd
+
+
+                elif isinstance(packet, PacketTimeTrialData):
+                    rd = packet.rivalDataSet
+                    if rd.valid:
+                        # Temps du rival
+                        self._tt_rival_lap_ms = rd.lapTimeInMS
+                        self._tt_rival_s1_ms = rd.sector1TimeInMS
+                        self._tt_rival_s2_ms = rd.sector2TimeInMS
+                        self._tt_rival_s3_ms = rd.sector3TimeInMS
+                        self._tt_rival_valid = True
+
+                        # Nom d’équipe
+                        self._tt_rival_team = TEAM_NAMES.get(rd.teamId, f"Team {rd.teamId}")
+
+                        # Aides activées
+                        self._tt_rival_assists = (
+                            f"TC={'On' if rd.tractionControl else 'Off'}  "
+                            f"ABS={'On' if rd.antiLockBrakes else 'Off'}  "
+                            f"Gear={'Auto' if rd.gearboxAssist else 'Man'}"
+                        )
+
+                        # Durée du tour du ghost rival
+                        self._rival_lap_duration = float(rd.lapTimeInMS)
+
+                    # PB Time Trial
+                    pb = packet.personalBestDataSet
+                    if pb.valid:
+                        self._tt_pb_lap_ms = pb.lapTimeInMS
+                        self._pb_lap_duration = float(pb.lapTimeInMS)
+
             elif isinstance(packet, PacketParticipantsData):
                 rd_card_idx = getattr(self, '_tt_rival_card_idx', -1)
                 # Mettre à jour l'index du rival à partir du TimeTrialData
