@@ -9,6 +9,7 @@ from PyQt6.QtGui import QFont
 
 from .constants import BG_DARK, BG_MID, TEXT_COLOR, UPDATE_MS
 from .widgets.speed_chart import SpeedChart, ms_to_str, COLOR_RIVAL
+from .widgets.accel_brake_chart import AccelBrakeChart
 
 import sys
 import os
@@ -21,12 +22,14 @@ class DashboardWindow(QMainWindow):
 
         # --- CONFIGURATION DE LA FENÊTRE PRINCIPALE ---
         self.setWindowTitle("F1 26 - Telemetrie")
-        self.resize(900, 420)
+        self.resize(900, 620)
         self.setStyleSheet(
             f"background-color: {BG_DARK}; color: {TEXT_COLOR};")
 
         # --- VARIABLES DU JOUEUR ---
         self._speed = 0                     # vitesse instantanée du joueur
+        self._throttle = 0.0                # accélérateur du joueur (0-1)
+        self._brake = 0.0                   # frein du joueur (0-1)
         self._lap_ms = 0.0                  # temps du tour en cours (ms)
         self._lap_num = 0                   # numéro du tour en cours
         self._last_lap_ms_completed = 0.0   # temps du dernier tour complété
@@ -216,6 +219,10 @@ class DashboardWindow(QMainWindow):
         self._chart = SpeedChart()
         root.addWidget(self._chart)
 
+        # --- GRAPHIQUE ACCÉLÉRATEUR + FREINS ---
+        self._accel_chart = AccelBrakeChart()
+        root.addWidget(self._accel_chart)
+
         # --- BANDEAU INFO RIVAL TIME TRIAL ---
         self._lbl_rival_info = QLabel("")
         self._lbl_rival_info.setFont(QFont("Segoe UI", 10))
@@ -258,6 +265,8 @@ class DashboardWindow(QMainWindow):
             if isinstance(packet, PacketCarTelemetryData):
                 idx = packet.header.playerCarIndex
                 self._speed = packet.carTelemetryData[idx].speed
+                self._throttle = float(packet.carTelemetryData[idx].throttle)
+                self._brake = float(packet.carTelemetryData[idx].brake)
 
                 # Si un PB ghost existe, on lit aussi sa vitesse
                 if self._pb_idx >= 0:
@@ -355,9 +364,11 @@ class DashboardWindow(QMainWindow):
     def _toggle_mode(self):
         if self._chart._mode == "full_lap":
             self._chart.set_mode("window")
+            self._accel_chart.set_mode("window")
             self._btn_mode.setText("Mode : Fenetre 30s")
         else:
             self._chart.set_mode("full_lap")
+            self._accel_chart.set_mode("full_lap")
             self._btn_mode.setText("Mode : Tour complet")
 
         def _start_udp(self):
@@ -497,6 +508,8 @@ class DashboardWindow(QMainWindow):
             if last_lap_num > 0 and self._last_lap_ms_completed > 0:
                 self._chart.commit_lap(
                     last_lap_num, self._last_lap_ms_completed)
+                self._accel_chart.commit_lap(
+                    last_lap_num, self._last_lap_ms_completed)
 
                 # Rival ghost : cle = last_lap_num, label = nom du rival
                 rival_name = self._tt_rival_name or (
@@ -521,12 +534,14 @@ class DashboardWindow(QMainWindow):
 
             # Reset buffer joueur seulement (ghosts continuent leur propre cycle)
             self._chart.reset()
+            self._accel_chart.reset()
 
         elif is_restart:
             # Restart sans compléter le tour : jeter les données partielles
             self._chart.reset()
             self._chart.reset_rival()
             self._chart.reset_pb()
+            self._accel_chart.reset()
             self._last_rival_lap_ms_acc = 0.0
             self._last_pb_lap_ms_acc = 0.0
 
@@ -555,6 +570,11 @@ class DashboardWindow(QMainWindow):
         self._lbl_lap.setText(f"Tour {lap_num}")
         self._lbl_speed.setText(f"{speed} km/h")
         self._chart.append(float(speed), lap_ms)
+        self._accel_chart.append(self._throttle, self._brake, lap_ms)
+
+        # Synchroniser la visibilité des overlays (accel_chart suit speed_chart)
+        if self._accel_chart._visible != self._chart._visible:
+            self._accel_chart.set_visible_laps(set(self._chart._visible))
 
         # Bandeau rival Time Trial
         if self._tt_rival_valid:

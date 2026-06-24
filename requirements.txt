@@ -14,3 +14,4 @@ python-dateutil==2.9.0.post0
 PythonQwt==0.15.0
 QtPy==2.4.3
 six==1.17.0
+pyirsdk
